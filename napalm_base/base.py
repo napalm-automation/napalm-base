@@ -1105,7 +1105,7 @@ class NetworkDriver:
             * rtt_max (float)
             * rtt_avg (float)
             * rtt_stddev (float)
-            * results
+            * results (list)
 
         'results' is a list of dictionaries with the following keys:
 
