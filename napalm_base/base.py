@@ -1100,7 +1100,7 @@ class NetworkDriver:
         In case of success, inner dictionary will have the followin keys:
 
             * probes_sent (int)
-            * packet_lost (int)
+            * packet_loss (int)
             * rtt_min (float)
             * rtt_max (float)
             * rtt_avg (float)
@@ -1117,7 +1117,7 @@ class NetworkDriver:
             {
                 'success': {
                     'probes_sent': 5,
-                    'packet_lostt': 0,
+                    'packet_loss': 0,
                     'rtt_min': 72.158,
                     'rtt_max': 72.433,
                     'rtt_avg': 72.268,

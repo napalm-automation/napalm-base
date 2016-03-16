@@ -245,7 +245,7 @@ probe_test_results = {
 
 ping = {
     'probes_sent': int,
-    'packet_lost': int,
+    'packet_loss': int,
     'rtt_min': float,
     'rtt_max': float,
     'rtt_avg': float,
