@@ -423,11 +423,12 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def get_bgp_config(self, group = '', neighbor = ''):
+    def get_bgp_config(self, group='', neighbor=''):
         """
         Returns a dictionary containing the BGP configuration.
         Can return either the whole config, either the config only for a group or neighbor.
         Main dictionary keys represent the group name and the values represent a dictionary having the following keys:
+
             * type (string)
             * description (string)
             * apply_groups (string list)
@@ -436,15 +437,17 @@ class NetworkDriver(object):
             * local_address (string)
             * local_as (int)
             * remote_as (int)
-            * import_policy (string)
-            * export_policy (string)
+            * import_policy (list)
+            * export_policy (list)
             * remove_private_as (True/False)
             * prefix_limit (dictionary)
             * neighbors (dictionary)
+
         Neighbors is a dictionary of dictionaries with the following keys:
+
             * description (string)
-            * import_policy (string)
-            * export_policy (string)
+            * import_policy (list)
+            * export_policy (list)
             * local_address (string)
             * local_as (int)
             * remote_as (int)
@@ -452,7 +455,9 @@ class NetworkDriver(object):
             * prefix_limit (dictionary)
             * route_reflector_client (True/False)
             * nhs (True/False)
-        The inner dictionary prefix_limit has the same structure for both layers:
+
+        The inner dictionary prefix_limit has the same structure for both layers::
+
             {
                 [FAMILY_NAME]: {
                     [FAMILY_TYPE]: {
@@ -468,8 +473,8 @@ class NetworkDriver(object):
                     'type'              : u'external',
                     'description'       : u'Here we should have a nice description',
                     'apply_groups'      : [u'BGP-PREFIX-LIMIT'],
-                    'import_policy'     : u'PUBLIC-PEER-IN',
-                    'export_policy'     : u'PUBLIC-PEER-OUT',
+                    'import_policy'     : [u'PUBLIC-PEER-IN'],
+                    'export_policy'     : [u'PUBLIC-PEER-OUT'],
                     'remove_private_as' : True,
                     'multipath'         : True,
                     'multihop_ttl'      : 30,

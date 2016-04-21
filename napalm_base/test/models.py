@@ -100,8 +100,8 @@ bgp_config_group = {
     'local_address'     : unicode,
     'local_as'          : int,
     'remote_as'         : int,
-    'import_policy'     : unicode,
-    'export_policy'     : unicode,
+    'import_policy'     : list,
+    'export_policy'     : list,
     'remove_private_as' : bool,
     'prefix_limit'      : dict,
     'neighbors'         : dict
@@ -109,8 +109,8 @@ bgp_config_group = {
 
 bgp_config_neighbor = {
     'description'           : unicode,
-    'import_policy'         : unicode,
-    'export_policy'         : unicode,
+    'import_policy'         : list,
+    'export_policy'         : list,
     'local_address'         : unicode,
     'authentication_key'    : unicode,
     'nhs'                   : bool,
