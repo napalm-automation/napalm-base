@@ -70,10 +70,11 @@ def textfsm_extractor(cls, template_name, raw_text):
                 template_name=template_name
             )
         )
-    except textfsm.textfsm.TextFSMTemplateError:
+    except textfsm.textfsm.TextFSMTemplateError as tfte:
         raise napalm_base.exceptions.TemplateRenderException(
-            "Wrong format of template {template_name}".format(
-                template_name=template_name
+            "Wrong format of template {template_name}: {err}".format(
+                template_name=template_name,
+                err=tfte.message
             )
         )
 
