@@ -21,7 +21,7 @@ import inspect
 from base import NetworkDriver
 
 
-def _import_module(name):
+def _import_module_from_fs(name):
     """Import a module into the current runtime environment.
 
     This function will take a full path module name and break it into
@@ -63,6 +63,58 @@ def _import_module(name):
 
     return mod
 
+def _import_module_from_egg(name, path=None):
+    """Import a module from a zipped egg
+
+
+    Import a module from a Python zipped egg that is consistent with
+    PEP302.  This is function is loosely derived from
+    http://stackoverflow.com/questions/28962344/
+
+    :param str name:
+        The name of the module to import
+
+    :returns:
+        The imported Python module
+    """
+    path = path or sys.path
+    for item in path:
+        module = sys.path_importer_cache.get(item)
+        if module:
+            try:
+                obj = module.find_module(name, [item])
+                if obj:
+                    return obj.load_module(name)
+            except ImportError:
+                pass
+    raise ImportError('No module named %s' % name)
+
+def _import_module(name):
+    """Imports a module based on the string name
+
+    This function will import the module specifed by name by first
+    trying to impor the module from the file system.  If the import
+    fails, then this function will attempt to import the module from
+    a Python egg.   If both imports file, the function will raise an
+    ImportError exception.
+
+    :param str name:
+        The full dotted name of the module to import
+
+    :returns:
+        The imported module object
+
+    :raises ImportError:
+        If the specified name could not be imported
+    """
+    try:
+        mod = _import_module_from_fs(name)
+    except ImportError, exc:
+        try:
+            mod = _import_module_from_egg(name)
+        except ImportError:
+            raise exc
+    return mod
 
 def _load_module(name):
     """Attempt to load a module into the current environment.
