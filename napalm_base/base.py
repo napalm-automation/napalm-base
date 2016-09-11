@@ -1516,3 +1516,15 @@ class NetworkDriver(object):
                 }
         """
         raise NotImplementedError
+
+    def get_config(self):
+        """
+        Return the configuration of a device.
+
+        The object returned is a dictionary with the following keys:
+            - running_config(string) - Representation of the native running configuration
+            - startup_config(string) - Representation of the native startup configuration. If the
+              device doesnt differentiate between running and startup configuration this will an
+              empty string
+        """
+        raise NotImplementedError
