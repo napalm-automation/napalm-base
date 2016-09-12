@@ -289,6 +289,7 @@ optics_state = {
 }
 
 config = {
-    'running_config': str,
-    'startup_config': str,
+    'running': str,
+    'startup': str,
+    'candidate': str,
 }

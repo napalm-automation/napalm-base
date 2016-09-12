@@ -1522,8 +1522,11 @@ class NetworkDriver(object):
         Return the configuration of a device.
 
         The object returned is a dictionary with the following keys:
-            - running_config(string) - Representation of the native running configuration
-            - startup_config(string) - Representation of the native startup configuration. If the
+            - running(string) - Representation of the native running configuration
+            - candidate(string) - Representation of the native candidate configuration. If the
+              device doesnt differentiate between running and startup configuration this will an
+              empty string
+            - startup(string) - Representation of the native startup configuration. If the
               device doesnt differentiate between running and startup configuration this will an
               empty string
         """
