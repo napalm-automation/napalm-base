@@ -1517,7 +1517,7 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def get_config(self, retrieve=None):
+    def get_config(self, retrieve='all'):
         """
         Return the configuration of a device.
 
