@@ -13,11 +13,18 @@
 # the License.
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
-from napalm_base import exceptions
 import difflib
-import models
+import sys
+from napalm_base import exceptions
+from napalm_base.test import models
 from unittest import SkipTest
+
+# For unit tests only!
+if sys.version[0] == '3':
+    unicode = str
+
 
 class TestConfigNetworkDriver:
 
@@ -148,7 +155,7 @@ class TestGettersNetworkDriver:
             print("model_keys: {}\ndata_keys: {}".format(sorted(model.keys()), sorted(data.keys())))
 
         correct_class = True
-        for key, instance_class in model.iteritems():
+        for key, instance_class in model.items():
             same_class = isinstance(data[key], instance_class)
             correct_class = correct_class and same_class
             if not same_class:
@@ -172,7 +179,7 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_interfaces) > 0
 
-        for interface, interface_data in get_interfaces.iteritems():
+        for interface, interface_data in get_interfaces.items():
             result = result and self._test_model(models.interface, interface_data)
 
         self.assertTrue(result)
@@ -184,7 +191,7 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_lldp_neighbors) > 0
 
-        for interface, neighbor_list in get_lldp_neighbors.iteritems():
+        for interface, neighbor_list in get_lldp_neighbors.items():
             for neighbor in neighbor_list:
                 result = result and self._test_model(models.lldp_neighbors, neighbor)
 
@@ -197,7 +204,7 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(self.device.get_interfaces_counters()) > 0
 
-        for interface, interface_data in get_interfaces_counters.iteritems():
+        for interface, interface_data in get_interfaces_counters.items():
             result = result and self._test_model(models.interface_counters, interface_data)
 
         self.assertTrue(result)
@@ -209,16 +216,16 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(environment) > 0
 
-        for fan, fan_data in environment['fans'].iteritems():
+        for fan, fan_data in environment['fans'].items():
             result = result and self._test_model(models.fan, fan_data)
 
-        for power, power_data in environment['power'].iteritems():
+        for power, power_data in environment['power'].items():
             result = result and self._test_model(models.power, power_data)
 
-        for temperature, temperature_data in environment['temperature'].iteritems():
+        for temperature, temperature_data in environment['temperature'].items():
             result = result and self._test_model(models.temperature, temperature_data)
 
-        for cpu, cpu_data in environment['cpu'].iteritems():
+        for cpu, cpu_data in environment['cpu'].items():
             result = result and self._test_model(models.cpu, cpu_data)
 
         result = result and self._test_model(models.memory, environment['memory'])
@@ -235,15 +242,15 @@ class TestGettersNetworkDriver:
         if not result:
             print('global is not part of the returned vrfs')
         else:
-            for vrf, vrf_data in get_bgp_neighbors.iteritems():
+            for vrf, vrf_data in get_bgp_neighbors.items():
                 result = result and isinstance(vrf_data['router_id'], unicode)
                 if not result:
                     print('router_id is not unicode')
 
-                for peer, peer_data in vrf_data['peers'].iteritems():
+                for peer, peer_data in vrf_data['peers'].items():
                     result = result and self._test_model(models.peer, peer_data)
 
-                    for af, af_data in peer_data['address_family'].iteritems():
+                    for af, af_data in peer_data['address_family'].items():
                         result = result and self._test_model(models.af, af_data)
 
             self.assertTrue(result)
@@ -255,7 +262,7 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_lldp_neighbors_detail) > 0
 
-        for interface, neighbor_list in get_lldp_neighbors_detail.iteritems():
+        for interface, neighbor_list in get_lldp_neighbors_detail.items():
             for neighbor in neighbor_list:
                 result = result and self._test_model(models.lldp_neighbors_detail, neighbor)
 
@@ -283,9 +290,9 @@ class TestGettersNetworkDriver:
 
         result = len(get_bgp_neighbors_detail) > 0
 
-        for vrf, vrf_ases in get_bgp_neighbors_detail.iteritems():
+        for vrf, vrf_ases in get_bgp_neighbors_detail.items():
             result = result and isinstance(vrf, unicode)
-            for remote_as, neighbor_list in vrf_ases.iteritems():
+            for remote_as, neighbor_list in vrf_ases.items():
                 result = result and isinstance(remote_as, int)
                 for neighbor in neighbor_list:
                     result = result and self._test_model(models.peer_details, neighbor)
@@ -311,7 +318,7 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_ntp_peers) > 0
 
-        for peer, peer_details in get_ntp_peers.iteritems():
+        for peer, peer_details in get_ntp_peers.items():
             result = result and isinstance(peer, unicode)
             result = result and self._test_model(models.ntp_peer, peer_details)
 
@@ -325,7 +332,7 @@ class TestGettersNetworkDriver:
 
         result = len(get_ntp_servers) > 0
 
-        for server, server_details in get_ntp_servers.iteritems():
+        for server, server_details in get_ntp_servers.items():
             result = result and isinstance(server, unicode)
             result = result and self._test_model(models.ntp_server, server_details)
 
@@ -350,12 +357,12 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_interfaces_ip) > 0
 
-        for interface, interface_details in get_interfaces_ip.iteritems():
+        for interface, interface_details in get_interfaces_ip.items():
             ipv4 = interface_details.get('ipv4', {})
             ipv6 = interface_details.get('ipv6', {})
-            for ip, ip_details in ipv4.iteritems():
+            for ip, ip_details in ipv4.items():
                 result = result and self._test_model(models.interfaces_ip, ip_details)
-            for ip, ip_details in ipv6.iteritems():
+            for ip, ip_details in ipv6.items():
                 result = result and self._test_model(models.interfaces_ip, ip_details)
 
         self.assertTrue(result)
@@ -383,7 +390,7 @@ class TestGettersNetworkDriver:
 
         result = len(get_route_to) > 0
 
-        for prefix, routes in get_route_to.iteritems():
+        for prefix, routes in get_route_to.items():
             for route in routes:
                 result = result and self._test_model(models.route, route)
 
@@ -401,7 +408,7 @@ class TestGettersNetworkDriver:
         for snmp_entry in get_snmp_information:
             result = result and self._test_model(models.snmp, get_snmp_information)
 
-        for community, community_data in get_snmp_information['community'].iteritems():
+        for community, community_data in get_snmp_information['community'].items():
             result = result and self._test_model(models.snmp_community, community_data)
 
         self.assertTrue(result)
@@ -414,8 +421,8 @@ class TestGettersNetworkDriver:
 
         result = len(get_probes_config) > 0
 
-        for probe_name, probe_tests in get_probes_config.iteritems():
-            for test_name, test_config in probe_tests.iteritems():
+        for probe_name, probe_tests in get_probes_config.items():
+            for test_name, test_config in probe_tests.items():
                 result = result and self._test_model(models.probe_test, test_config)
 
         self.assertTrue(result)
@@ -427,8 +434,8 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_probes_results) > 0
 
-        for probe_name, probe_tests in get_probes_results.iteritems():
-            for test_name, test_results in probe_tests.iteritems():
+        for probe_name, probe_tests in get_probes_results.items():
+            for test_name, test_results in probe_tests.items():
                 result = result and self._test_model(models.probe_test_results, test_results)
 
         self.assertTrue(result)
@@ -460,8 +467,8 @@ class TestGettersNetworkDriver:
         result = isinstance(get_traceroute.get('success'), dict)
         traceroute_results = get_traceroute.get('success', {})
 
-        for hope_id, hop_result in traceroute_results.iteritems():
-            for probe_id, probe_result in hop_result.get('probes', {}).iteritems():
+        for hope_id, hop_result in traceroute_results.items():
+            for probe_id, probe_result in hop_result.get('probes', {}).items():
                 result = result and self._test_model(models.traceroute, probe_result)
 
         self.assertTrue(result)
@@ -474,7 +481,7 @@ class TestGettersNetworkDriver:
             raise SkipTest()
         result = len(get_users)
 
-        for user, user_details in get_users.iteritems():
+        for user, user_details in get_users.items():
             result = result and self._test_model(models.users, user_details)
             result = result and (0 <= user_details.get('level') <= 15)
 
@@ -489,7 +496,7 @@ class TestGettersNetworkDriver:
 
         assert isinstance(get_optics, dict)
 
-        for iface, iface_data in get_optics.iteritems():
+        for iface, iface_data in get_optics.items():
             assert isinstance(iface, unicode)
             for channel in iface_data['physical_channels']['channel']:
                 assert len(channel) == 2
