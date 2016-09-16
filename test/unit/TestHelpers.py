@@ -15,7 +15,7 @@ except ImportError:
     HAS_JINJA = False
 
 try:
-    import textfsm
+    import jtextfsm as textfsm
     HAS_TEXTFSM = True
 except ImportError:
     HAS_TEXTFSM = False
