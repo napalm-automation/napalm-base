@@ -6,6 +6,7 @@ python:
 install:
   - pip install .
   - pip install -r test/unit/requirements.txt
+  - pip install coveralls
 
 deploy:
   provider: pypi
@@ -17,6 +18,7 @@ deploy:
     branch: master
 
 script:
-  - nosetests ./test/unit/TestGetNetworkDriver.py
-  - nosetests ./test/unit/TestHelpers.py
-  - nosetests ./test/unit/TestNapalmTestFramework.py
+  - nosetests --with-coverage --cover-package napalm_base ./test/unit/TestGetNetworkDriver.py
+  - nosetests --with-coverage --cover-package napalm_base ./test/unit/TestHelpers.py
+  - nosetests --with-coverage --cover-package napalm_base ./test/unit/TestNapalmTestFramework.py
+after_success: coveralls
