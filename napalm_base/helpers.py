@@ -8,8 +8,6 @@ import re
 # third party libs
 import jinja2
 import textfsm
-from netaddr import EUI
-from netaddr import mac_unix
 from netaddr import IPAddress
 from netaddr.core import AddrFormatError
 
@@ -21,13 +19,6 @@ from napalm_base.utils.jinja_filters import CustomJinjaFilters
 # ----------------------------------------------------------------------------------------------------------------------
 # helper classes -- will not be exported
 # ----------------------------------------------------------------------------------------------------------------------
-
-
-class _MACFormat(mac_unix):
-    pass
-
-_MACFormat.word_fmt = '%.2X'
-
 # ----------------------------------------------------------------------------------------------------------------------
 # callable helpers
 # ----------------------------------------------------------------------------------------------------------------------
@@ -202,16 +193,17 @@ def mac(raw):
         >>> mac('0123.4567.89ab')
         u'01:23:45:67:89:AB'
     """
+    
+    stripped_mac = re.sub(r'\W+', '', raw)
+    if len(stripped_mac) != 12:
+        return "Missing MAC Charcaters"
+    else:
+        new_mac = ':'.join(stripped_mac[i:i+2] for i in range(0, len(stripped_mac), 2))
+        results = "u'" + new_mac + "'"
 
-    mac = u''
+    return results
 
-    try:
-        mac = unicode(EUI(raw, dialect=_MACFormat))
-    except AddrFormatError:
-        return mac
-
-    return mac
-
+    
 
 def ip(addr):
 
