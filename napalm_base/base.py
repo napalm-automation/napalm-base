@@ -73,6 +73,20 @@ class NetworkDriver(object):
             print(epilog)
         raise exc_type, exc_value, exc_traceback
 
+
+    def file_copy(self, src, dest=None, **kwargs):
+        """Send a local file to the device.
+        Args:
+            src (str): Path to the local file to send.
+        Keyword Args:
+            dest (str): The destination file path to be saved on remote flash.
+                If none is supplied, the implementing class should use the basename
+                of the source path.
+            file_system (str): Supported only for IOS and NXOS. The file system for the
+                remote fle. Defaults to 'flash:' for IOS and 'bootflash:' for NXOS.
+        """
+        raise NotImplementedError
+
     def open(self):
         """
         Opens a connection to the device.
