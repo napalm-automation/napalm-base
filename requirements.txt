@@ -1,4 +1,3 @@
-gtextfsm
+jtextfsm
 jinja2
 netaddr
-pyangbind
