@@ -18,7 +18,7 @@ deploy:
     branch: master
 
 script:
-  - nosetests --with-coverage --cover-package napalm_base ./test/unit/TestGetNetworkDriver.py
-  - nosetests --with-coverage --cover-package napalm_base ./test/unit/TestHelpers.py
-  - nosetests --with-coverage --cover-package napalm_base ./test/unit/TestNapalmTestFramework.py
-after_success: coveralls
+  - py.test --cov-report= --cov=napalm_eos test/
+  - pylama .
+after_success:
+  coveralls
