@@ -18,7 +18,7 @@ deploy:
     branch: master
 
 script:
-  - py.test --cov-report= --cov=napalm_eos test/
+  - py.test --cov-report= --cov=napalm_base test/
   - pylama .
 after_success:
   coveralls
