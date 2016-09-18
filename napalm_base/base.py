@@ -1554,3 +1554,10 @@ class NetworkDriver(object):
               empty string
         """
         raise NotImplementedError
+
+    def get_prefix_list_config(self, prefix_list_name=None):
+	"""
+	Returns the configuration of the prefix list(s).
+	"""
+	raise NotImplementedError
+
