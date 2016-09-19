@@ -19,7 +19,7 @@ deploy:
     branch: master
 
 script:
-  - py.test --cov-report= test/
-  - pylama .
+  - py.test --cov-report term-missing test/
+  # - pylama .
 after_success:
   coveralls
