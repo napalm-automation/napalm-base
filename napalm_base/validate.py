@@ -147,12 +147,9 @@ def validate(cls, getters=None, config=None, validation_file=None):
     running:
       - username napalm password napalm
 
-    This method will return True if a full match between expected and actual results
-    is found. Otherwise, it will return a dictionary showing not matched values.
-
     :param cls: Instance of the driver class
     :param getters: Specifies the name of the getter function to be tested.
-    :param config: Either 'running' or 'candidate', specifying which configuration should be tested. 
+    :param config: Either 'running' or 'candidate', specifying which config should be tested.
     :param validation_file: Name of the YAML file used for the validation.
     :return: True if a full match is found, Otherwise, it will return a dictionary.
     """
