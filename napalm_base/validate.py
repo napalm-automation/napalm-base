@@ -108,7 +108,54 @@ def _find_config_differences(actual_config, expected_config):
 
     return not_matched
 
-def validate(cls, getters=None, config=None, validation_file='validate.yml'):
+def validate(cls, getters=None, config=None, validation_file=None):
+    """
+    Validate getter methods outputs and configurations comparing them with a validation
+    YAML file containing expected results.
+
+    In order to validate getter methods, YAML file's keys have to match the getter
+    method's name willing to validate and its values structure must reflect the getter
+    output format.
+
+    Example:
+    ---
+
+    get_bgp_neighbors:
+      default:
+        router_id: 192.0.2.2
+        peers:
+          192.0.2.3:
+            is_enabled: false
+
+    get_interfaces:
+      Ethernet2/5:
+        is_enabled: true
+        is_up: true
+
+      Vlan100:
+        is_enabled: false
+        is_up: false
+
+    In order to validate configuration, the YAML file must contain keys like 'running'
+    or 'candidate' and their content must be a list of configuration lines that must be
+    present in the configuration. To do that, get_config() method must be supported by
+    the network driver.
+
+    Example:
+    ---
+
+    running:
+      - username napalm password napalm
+
+    This method will return True if a full match between expected and actual results
+    is found. Otherwise, it will return a dictionary showing not matched values.
+
+    :param cls: Instance of the driver class
+    :param getters: Specifies the name of the getter function to be tested.
+    :param config: Either 'running' or 'candidate', specifying which configuration should be tested. 
+    :param validation_file: Name of the YAML file used for the validation.
+    :return: True if a full match is found, Otherwise, it will return a dictionary.
+    """
     errors = {}
     if getters:
         getters = _check_getters(cls, getters)
