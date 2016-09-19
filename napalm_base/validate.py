@@ -1,3 +1,5 @@
+"""Validation methods for the NAPALM base."""
+
 import yaml
 
 from napalm_base.exceptions import ValidationException
@@ -13,10 +15,12 @@ def _check_getters(cls, getters):
 
     return getters
 
+
 def _check_config(config):
     if config not in ['running', 'candidate']:
         raise ValidationException("{0} config not supported. Only running or "
                                   "candidate are allowed".format(config))
+
 
 def _get_validation_file(validation_file):
     try:
@@ -40,11 +44,12 @@ def _find_differences(cls, key, actual_value, expected_values):
 
     elif (isinstance(actual_value, unicode) or
           isinstance(actual_value, int)):
-        not_matched_result = _handle_unicode_int(key, actual_value, expected_values[key])
+        not_matched_result = _handle_unicode_int(actual_value, expected_values[key])
 
     elif isinstance(actual_value, list):
-        not_matched_result = _handle_list(key, actual_value, expected_values[key])
+        not_matched_result = _handle_list(actual_value, expected_values[key])
     return not_matched_result
+
 
 def _handle_dict(cls, actual_values, expected_values):
     not_matched = []
@@ -71,14 +76,16 @@ def _handle_dict(cls, actual_values, expected_values):
                 not_matched.append(not_matched_string)
     return not_matched
 
-def _handle_unicode_int(key, actual_values, expected_values):
+
+def _handle_unicode_int(actual_values, expected_values):
     not_matched_string = ''
     if str(actual_values) != str(expected_values):
         not_matched_string = ("Expected '{0}', "
                               "found '{1}' instead".format(expected_values, actual_values))
     return not_matched_string
 
-def _handle_list(key, actual_values, expected_values):
+
+def _handle_list(actual_values, expected_values):
     not_matched = []
     not_matched_string = ''
     for value in expected_values:
@@ -99,6 +106,7 @@ def _handle_list(key, actual_values, expected_values):
 
     return not_matched
 
+
 def _find_config_differences(actual_config, expected_config):
     not_matched = []
 
@@ -107,6 +115,7 @@ def _find_config_differences(actual_config, expected_config):
             not_matched.append(config_line)
 
     return not_matched
+
 
 def validate(cls, getters=None, config=None, validation_file=None):
     """
@@ -180,13 +189,12 @@ def validate(cls, getters=None, config=None, validation_file=None):
             for key in expected_results.keys():
                 not_matched_result = ''
                 not_matched = []
-                expected_values = expected_results[key]
                 actual_values = actual_results.get(key)
                 not_matched_result = _find_differences(cls, key, actual_values, expected_results)
 
                 if not_matched_result:
                     if (isinstance(not_matched_result, dict) or
-                        isinstance(not_matched_result, str)):
+                            isinstance(not_matched_result, str)):
                         not_matched.append(not_matched_result)
                     else:
                         not_matched.extend(not_matched_result)
@@ -205,7 +213,7 @@ def validate(cls, getters=None, config=None, validation_file=None):
                                       ' Check your syntax.'.format(config))
 
         actual_config = cls.get_config(retrieve=config)[config]
-        not_matched_result = _find_config_differences(cls, actual_config, expected_config)
+        not_matched_result = _find_config_differences(actual_config, expected_config)
 
         if not_matched_result:
             error_string = "Expected but not found in {0} config".format(config)
