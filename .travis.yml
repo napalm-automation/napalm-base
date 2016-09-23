@@ -5,7 +5,9 @@ python:
 
 install:
   - pip install .
+  - pip install -r requirements-dev.txt
   - pip install -r test/unit/requirements.txt
+  - pip install coveralls
 
 deploy:
   provider: pypi
@@ -17,6 +19,7 @@ deploy:
     branch: master
 
 script:
-  - nosetests ./test/unit/TestGetNetworkDriver.py
-  - nosetests ./test/unit/TestHelpers.py
-  - nosetests ./test/unit/TestNapalmTestFramework.py
+  - py.test --cov-report= test/
+  - pylama .
+after_success:
+  coveralls
