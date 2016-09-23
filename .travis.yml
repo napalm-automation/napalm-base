@@ -20,6 +20,6 @@ deploy:
 
 script:
   - py.test --cov-report= test/
-  # - pylama .
+  - pylama .
 after_success:
   coveralls
