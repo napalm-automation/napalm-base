@@ -83,7 +83,9 @@ def convert_uptime_string_seconds(uptime):
               r"hour(s)?,\s+)?((?P<minutes>\d+) minute(s)?)")
     regex_1 = re.compile(regex1)
     regex_2 = re.compile(r"((?P<hours>\d+)):((?P<minutes>\d+)):((?P<seconds>\d+))")
-    regex_3 = re.compile(r"((?P<weeks>\d+)w)?((?P<days>\d+)d)?((?P<hours>\d+)h)?((?P<minutes>\d+)m)?((?P<seconds>\d+)s)?")
+    regex3 = (r"((?P<weeks>\d+)w)?((?P<days>\d+)d)?((?P<hours>\d+)h)?"
+              r"((?P<minutes>\d+)m)?((?P<seconds>\d+)s)?")
+    regex_3 = re.compile(regex3)
     regex_list = [regex_1, regex_2, regex_3]
     uptime_dict = dict()
     for regex in regex_list:
