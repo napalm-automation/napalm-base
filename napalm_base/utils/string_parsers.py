@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import re
 
 
@@ -91,7 +94,7 @@ def convert_uptime_string_seconds(uptime):
         uptime_dict = dict()
     uptime_seconds = 0
 
-    for unit, value in uptime_dict.iteritems():
+    for unit, value in uptime_dict.items():
         if value is not None:
             if unit == 'weeks':
                 uptime_seconds += int(value) * 604800

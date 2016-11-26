@@ -1,19 +1,24 @@
 """Testing framework."""
-
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import functools
-import itertools
+
+# python2/3 support
+try:
+    from itertools import izip_longest as zip_longest
+except ImportError:
+    from itertools import zip_longest
+
 import json
 import os
 
-
-import helpers
-
-import models
-
-
 import pytest
+from napalm_base.test import helpers
+from napalm_base.test import models
+
+# text_type is 'unicode' for py2 and 'str' for py3
+from napalm_base.utils.py23_compat import text_type
 
 
 NAPALM_TEST_MOCK = os.getenv('NAPALM_TEST_MOCK', default=True)
@@ -22,7 +27,7 @@ NAPALM_TEST_MOCK = os.getenv('NAPALM_TEST_MOCK', default=True)
 def list_dicts_diff(prv, nxt):
     """Compare two lists of dicts."""
     result = []
-    for prv_element, nxt_element in itertools.izip_longest(prv, nxt, fillvalue={}):
+    for prv_element, nxt_element in zip_longest(prv, nxt, fillvalue={}):
         intermediate_result = dict_diff(prv_element, nxt_element)
         if intermediate_result:
             result.append(intermediate_result)
@@ -31,7 +36,7 @@ def list_dicts_diff(prv, nxt):
 
 def dict_diff(prv, nxt):
     """Return a dict of keys that differ with another config object."""
-    keys = set(prv.keys() + nxt.keys())
+    keys = set(list(prv.keys()) + list(nxt.keys()))
     result = {}
 
     for k in keys:
@@ -63,7 +68,7 @@ def wrap_test_cases(func):
         try:
             # This is an ugly, ugly, ugly hack because some python objects don't load
             # as expected. For example, dicts where integers are strings
-            result = json.loads(json.dumps(func(cls)))
+            result = json.loads(json.dumps(func(cls, test_case)))
         except IOError:
             if test_case == "no_test_case_found":
                 pytest.fail("No test case for '{}' found".format(func.__name__))
@@ -100,66 +105,73 @@ def wrap_test_cases(func):
     return wrapper
 
 
-class BaseTestGetters:
+class BaseTestGetters(object):
     """Base class for testing drivers."""
 
     @wrap_test_cases
-    def test_get_facts(self):
+    def test_is_alive(self, test_case):
+        """Test is_alive method."""
+        alive = self.device.is_alive()
+        assert helpers.test_model(models.alive, alive)
+        return alive
+
+    @wrap_test_cases
+    def test_get_facts(self, test_case):
         """Test get_facts method."""
         facts = self.device.get_facts()
         assert helpers.test_model(models.facts, facts)
         return facts
 
     @wrap_test_cases
-    def test_get_interfaces(self):
+    def test_get_interfaces(self, test_case):
         """Test get_interfaces."""
         get_interfaces = self.device.get_interfaces()
         assert len(get_interfaces) > 0
 
-        for interface, interface_data in get_interfaces.iteritems():
+        for interface, interface_data in get_interfaces.items():
             assert helpers.test_model(models.interface, interface_data)
 
         return get_interfaces
 
     @wrap_test_cases
-    def test_get_lldp_neighbors(self):
+    def test_get_lldp_neighbors(self, test_case):
         """Test get_lldp_neighbors."""
         get_lldp_neighbors = self.device.get_lldp_neighbors()
         assert len(get_lldp_neighbors) > 0
 
-        for interface, neighbor_list in get_lldp_neighbors.iteritems():
+        for interface, neighbor_list in get_lldp_neighbors.items():
             for neighbor in neighbor_list:
                 assert helpers.test_model(models.lldp_neighbors, neighbor)
 
         return get_lldp_neighbors
 
     @wrap_test_cases
-    def test_get_interfaces_counters(self):
+    def test_get_interfaces_counters(self, test_case):
         """Test get_interfaces_counters."""
         get_interfaces_counters = self.device.get_interfaces_counters()
         assert len(self.device.get_interfaces_counters()) > 0
 
-        for interface, interface_data in get_interfaces_counters.iteritems():
+        for interface, interface_data in get_interfaces_counters.items():
             assert helpers.test_model(models.interface_counters, interface_data)
 
         return get_interfaces_counters
 
     @wrap_test_cases
-    def test_get_environment(self):
+    def test_get_environment(self, test_case):
         """Test get_environment."""
         environment = self.device.get_environment()
         assert len(environment) > 0
 
-        for fan, fan_data in environment['fans'].iteritems():
+        for fan, fan_data in environment['fans'].items():
             assert helpers.test_model(models.fan, fan_data)
 
-        for power, power_data in environment['power'].iteritems():
+        for power, power_data in environment['power'].items():
             assert helpers.test_model(models.power, power_data)
 
-        for temperature, temperature_data in environment['temperature'].iteritems():
+        for temperature, temperature_data in environment['temperature'].items():
             assert helpers.test_model(models.temperature, temperature_data)
 
-        for cpu, cpu_data in environment['cpu'].iteritems():
+        for cpu, cpu_data in environment['cpu'].items():
             assert helpers.test_model(models.cpu, cpu_data)
 
         assert helpers.test_model(models.memory, environment['memory'])
@@ -167,36 +179,36 @@ class BaseTestGetters:
         return environment
 
     @wrap_test_cases
-    def test_get_bgp_neighbors(self):
+    def test_get_bgp_neighbors(self, test_case):
         """Test get_bgp_neighbors."""
         get_bgp_neighbors = self.device.get_bgp_neighbors()
         assert 'global' in get_bgp_neighbors.keys()
 
-        for vrf, vrf_data in get_bgp_neighbors.iteritems():
-            assert isinstance(vrf_data['router_id'], unicode)
+        for vrf, vrf_data in get_bgp_neighbors.items():
+            assert isinstance(vrf_data['router_id'], text_type)
 
-            for peer, peer_data in vrf_data['peers'].iteritems():
+            for peer, peer_data in vrf_data['peers'].items():
                 assert helpers.test_model(models.peer, peer_data)
 
-                for af, af_data in peer_data['address_family'].iteritems():
+                for af, af_data in peer_data['address_family'].items():
                     assert helpers.test_model(models.af, af_data)
 
         return get_bgp_neighbors
 
     @wrap_test_cases
-    def test_get_lldp_neighbors_detail(self):
+    def test_get_lldp_neighbors_detail(self, test_case):
         """Test get_lldp_neighbors_detail."""
         get_lldp_neighbors_detail = self.device.get_lldp_neighbors_detail()
         assert len(get_lldp_neighbors_detail) > 0
 
-        for interface, neighbor_list in get_lldp_neighbors_detail.iteritems():
+        for interface, neighbor_list in get_lldp_neighbors_detail.items():
             for neighbor in neighbor_list:
                 assert helpers.test_model(models.lldp_neighbors_detail, neighbor)
 
         return get_lldp_neighbors_detail
 
     @wrap_test_cases
-    def test_get_bgp_config(self):
+    def test_get_bgp_config(self, test_case):
         """Test get_bgp_config."""
         get_bgp_config = self.device.get_bgp_config()
         assert len(get_bgp_config) > 0
@@ -209,15 +221,15 @@ class BaseTestGetters:
         return get_bgp_config
 
     @wrap_test_cases
-    def test_get_bgp_neighbors_detail(self):
+    def test_get_bgp_neighbors_detail(self, test_case):
         """Test get_bgp_neighbors_detail."""
         get_bgp_neighbors_detail = self.device.get_bgp_neighbors_detail()
 
         assert len(get_bgp_neighbors_detail) > 0
 
-        for vrf, vrf_ases in get_bgp_neighbors_detail.iteritems():
-            assert isinstance(vrf, unicode)
-            for remote_as, neighbor_list in vrf_ases.iteritems():
+        for vrf, vrf_ases in get_bgp_neighbors_detail.items():
+            assert isinstance(vrf, text_type)
+            for remote_as, neighbor_list in vrf_ases.items():
                 assert isinstance(remote_as, int)
                 for neighbor in neighbor_list:
                     assert helpers.test_model(models.peer_details, neighbor)
@@ -225,7 +237,7 @@ class BaseTestGetters:
         return get_bgp_neighbors_detail
 
     @wrap_test_cases
-    def test_get_arp_table(self):
+    def test_get_arp_table(self, test_case):
         """Test get_arp_table."""
         get_arp_table = self.device.get_arp_table()
         assert len(get_arp_table) > 0
@@ -236,19 +248,31 @@ class BaseTestGetters:
         return get_arp_table
 
     @wrap_test_cases
-    def test_get_ntp_peers(self):
+    def test_get_ntp_peers(self, test_case):
         """Test get_ntp_peers."""
         get_ntp_peers = self.device.get_ntp_peers()
         assert len(get_ntp_peers) > 0
 
-        for peer, peer_details in get_ntp_peers.iteritems():
-            assert isinstance(peer, unicode)
+        for peer, peer_details in get_ntp_peers.items():
+            assert isinstance(peer, text_type)
             assert helpers.test_model(models.ntp_peer, peer_details)
 
         return get_ntp_peers
 
     @wrap_test_cases
-    def test_get_ntp_stats(self):
+    def test_get_ntp_servers(self, test_case):
+        """Test get_ntp_servers."""
+        get_ntp_servers = self.device.get_ntp_servers()
+        assert len(get_ntp_servers) > 0
+
+        for server, server_details in get_ntp_servers.items():
+            assert isinstance(server, text_type)
+            assert helpers.test_model(models.ntp_server, server_details)
+
+        return get_ntp_servers
+
+    @wrap_test_cases
+    def test_get_ntp_stats(self, test_case):
         """Test get_ntp_stats."""
         get_ntp_stats = self.device.get_ntp_stats()
         assert len(get_ntp_stats) > 0
@@ -259,23 +283,23 @@ class BaseTestGetters:
         return get_ntp_stats
 
     @wrap_test_cases
-    def test_get_interfaces_ip(self):
+    def test_get_interfaces_ip(self, test_case):
         """Test get_interfaces_ip."""
         get_interfaces_ip = self.device.get_interfaces_ip()
         assert len(get_interfaces_ip) > 0
 
-        for interface, interface_details in get_interfaces_ip.iteritems():
+        for interface, interface_details in get_interfaces_ip.items():
             ipv4 = interface_details.get('ipv4', {})
             ipv6 = interface_details.get('ipv6', {})
-            for ip, ip_details in ipv4.iteritems():
+            for ip, ip_details in ipv4.items():
                 assert helpers.test_model(models.interfaces_ip, ip_details)
-            for ip, ip_details in ipv6.iteritems():
+            for ip, ip_details in ipv6.items():
                 assert helpers.test_model(models.interfaces_ip, ip_details)
 
         return get_interfaces_ip
 
     @wrap_test_cases
-    def test_get_mac_address_table(self):
+    def test_get_mac_address_table(self, test_case):
         """Test get_mac_address_table."""
         get_mac_address_table = self.device.get_mac_address_table()
         assert len(get_mac_address_table) > 0
@@ -286,7 +310,7 @@ class BaseTestGetters:
         return get_mac_address_table
 
     @wrap_test_cases
-    def test_get_route_to(self):
+    def test_get_route_to(self, test_case):
         """Test get_route_to."""
         destination = '1.0.4.0/24'
         protocol = 'bgp'
@@ -294,14 +318,14 @@ class BaseTestGetters:
 
         assert len(get_route_to) > 0
 
-        for prefix, routes in get_route_to.iteritems():
+        for prefix, routes in get_route_to.items():
             for route in routes:
                 assert helpers.test_model(models.route, route)
 
         return get_route_to
 
     @wrap_test_cases
-    def test_get_snmp_information(self):
+    def test_get_snmp_information(self, test_case):
         """Test get_snmp_information."""
         get_snmp_information = self.device.get_snmp_information()
 
@@ -310,38 +334,38 @@ class BaseTestGetters:
         for snmp_entry in get_snmp_information:
             assert helpers.test_model(models.snmp, get_snmp_information)
 
-        for community, community_data in get_snmp_information['community'].iteritems():
+        for community, community_data in get_snmp_information['community'].items():
             assert helpers.test_model(models.snmp_community, community_data)
 
         return get_snmp_information
 
     @wrap_test_cases
-    def test_get_probes_config(self):
+    def test_get_probes_config(self, test_case):
         """Test get_probes_config."""
         get_probes_config = self.device.get_probes_config()
 
         assert len(get_probes_config) > 0
 
-        for probe_name, probe_tests in get_probes_config.iteritems():
-            for test_name, test_config in probe_tests.iteritems():
+        for probe_name, probe_tests in get_probes_config.items():
+            for test_name, test_config in probe_tests.items():
                 assert helpers.test_model(models.probe_test, test_config)
 
         return get_probes_config
 
     @wrap_test_cases
-    def test_get_probes_results(self):
+    def test_get_probes_results(self, test_case):
         """Test get_probes_results."""
         get_probes_results = self.device.get_probes_results()
         assert len(get_probes_results) > 0
 
-        for probe_name, probe_tests in get_probes_results.iteritems():
-            for test_name, test_results in probe_tests.iteritems():
+        for probe_name, probe_tests in get_probes_results.items():
+            for test_name, test_results in probe_tests.items():
                 assert helpers.test_model(models.probe_test_results, test_results)
 
         return get_probes_results
 
     @wrap_test_cases
-    def test_ping(self):
+    def test_ping(self, test_case):
         """Test ping."""
         destination = '8.8.8.8'
         get_ping = self.device.ping(destination)
@@ -356,39 +380,39 @@ class BaseTestGetters:
         return get_ping
 
     @wrap_test_cases
-    def test_traceroute(self):
+    def test_traceroute(self, test_case):
         """Test traceroute."""
         destination = '8.8.8.8'
         get_traceroute = self.device.traceroute(destination)
         assert isinstance(get_traceroute.get('success'), dict)
         traceroute_results = get_traceroute.get('success', {})
 
-        for hope_id, hop_result in traceroute_results.iteritems():
-            for probe_id, probe_result in hop_result.get('probes', {}).iteritems():
+        for hope_id, hop_result in traceroute_results.items():
+            for probe_id, probe_result in hop_result.get('probes', {}).items():
                 assert helpers.test_model(models.traceroute, probe_result)
 
         return get_traceroute
 
     @wrap_test_cases
-    def test_get_users(self):
+    def test_get_users(self, test_case):
         """Test get_users."""
         get_users = self.device.get_users()
         assert len(get_users)
 
-        for user, user_details in get_users.iteritems():
+        for user, user_details in get_users.items():
             assert helpers.test_model(models.users, user_details)
             assert (0 <= user_details.get('level') <= 15)
 
         return get_users
 
     @wrap_test_cases
-    def test_get_optics(self):
+    def test_get_optics(self, test_case):
         """Test get_optics."""
         get_optics = self.device.get_optics()
         assert isinstance(get_optics, dict)
 
-        for iface, iface_data in get_optics.iteritems():
-            assert isinstance(iface, unicode)
+        for iface, iface_data in get_optics.items():
+            assert isinstance(iface, text_type)
             for channel in iface_data['physical_channels']['channel']:
                 assert len(channel) == 2
                 assert isinstance(channel['index'], int)
@@ -405,7 +429,7 @@ class BaseTestGetters:
         return get_optics
 
     @wrap_test_cases
-    def test_get_config(self):
+    def test_get_config(self, test_case):
         """Test get_config method."""
         get_config = self.device.get_config()
 
@@ -415,7 +439,7 @@ class BaseTestGetters:
         return get_config
 
     @wrap_test_cases
-    def test_get_config_filtered(self):
+    def test_get_config_filtered(self, test_case):
         """Test get_config method."""
         for config in ['running', 'startup', 'candidate']:
             get_config = self.device.get_config(retrieve=config)
@@ -425,3 +449,17 @@ class BaseTestGetters:
             assert get_config['running'] == "" if config != "running" else True
 
         return get_config
+
+    @wrap_test_cases
+    def test_get_network_instances(self, test_case):
+        """Test get_network_instances method."""
+        get_network_instances = self.device.get_network_instances()
+
+        assert isinstance(get_network_instances, dict)
+        for network_instance_name, network_instance in get_network_instances.items():
+            assert helpers.test_model(models.network_instance, network_instance)
+            assert helpers.test_model(models.network_instance_state, network_instance['state'])
+            assert helpers.test_model(models.network_instance_interfaces,
+                                      network_instance['interfaces'])
+
+        return get_network_instances

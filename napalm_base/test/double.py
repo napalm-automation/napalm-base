@@ -1,12 +1,16 @@
 """Base class for Test doubles."""
 
+# Python3 support
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import json
 import re
 import os
 import sys
 
 
-class BaseTestDouble:
+class BaseTestDouble(object):
     """Base class for test doubles."""
 
     def __init__(self, *args, **kwargs):
@@ -30,7 +34,7 @@ class BaseTestDouble:
     @staticmethod
     def sanitize_text(text):
         """Remove some weird characters from text, useful for building filenames from commands."""
-        regexp = r'[\[\]\*\^\+\s\|\/\$\%\!\"]'
+        regexp = '[^a-zA-Z0-9]'
         return re.sub(regexp, '_', text)[0:150]
 
     @staticmethod

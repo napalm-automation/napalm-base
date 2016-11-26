@@ -12,6 +12,10 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+# Python3 support
+from __future__ import print_function
+from __future__ import unicode_literals
+
 # std libs
 import sys
 
@@ -22,7 +26,7 @@ import napalm_base.helpers
 
 class NetworkDriver(object):
 
-    def __init__(self, hostname, username, password, timeout, optional_args):
+    def __init__(self, hostname, username, password, timeout=60, optional_args=None):
         """
         This is the base class you have to inherit from when writing your own Network Driver to
         manage any device. You will, in addition, have to override all the methods specified on
@@ -70,7 +74,8 @@ class NetworkDriver(object):
                       "https://github.com/napalm-automation/napalm/issues\n"
                       "Don't forget to include this traceback.")
             print(epilog)
-        raise exc_type, exc_value, exc_traceback
+        # Traceback should already be attached to exception; no need to re-attach
+        raise exc_value
 
     def open(self):
         """
@@ -81,6 +86,16 @@ class NetworkDriver(object):
     def close(self):
         """
         Closes the connection to the device.
+        """
+        raise NotImplementedError
+
+    def is_alive(self):
+        """
+        Returns a flag with the connection state.
+        Depends on the nature of API used by each driver.
+        The state does not reflect only on the connection status (when SSH), it must also take into
+        consideration other parameters, e.g.: NETCONF session might not be usable, althought the
+        underlying SSH session is still open etc.
         """
         raise NotImplementedError
 
@@ -1372,5 +1387,56 @@ class NetworkDriver(object):
             - startup(string) - Representation of the native startup configuration. If the
               device doesnt differentiate between running and startup configuration this will an
               empty string
+        """
+        raise NotImplementedError
+
+    def get_network_instances(self, name=''):
+        """
+        Return a dictionary of network instances (VRFs) configured, including default/global
+
+        Args:
+            name(string) - Name of the network instance to return, default is all.
+
+        Returns:
+            A dictionary of network instances in OC format:
+            * name (dict)
+              * name (unicode)
+              * type (unicode)
+              * state (dict)
+                * route_distinguisher (unicode)
+              * interfaces (dict)
+                * interface (dict)
+                  * interface name: (dict)
+
+        Example:
+        {
+            u'MGMT': {
+                u'name': u'MGMT',
+                u'type': u'L3VRF',
+                u'state': {
+                    u'route_distinguisher': u'123:456',
+                },
+                u'interfaces': {
+                    u'interface': {
+                        u'Management1': {}
+                    }
+                }
+            }
+            u'default': {
+                u'name': u'default',
+                u'type': u'DEFAULT_INSTANCE',
+                u'state': {
+                    u'route_distinguisher': None,
+                },
+                u'interfaces: {
+                    u'interface': {
+                        u'Ethernet1': {}
+                        u'Ethernet2': {}
+                        u'Ethernet3': {}
+                        u'Ethernet4': {}
+                    }
+                }
+            }
+        }
         """
         raise NotImplementedError
