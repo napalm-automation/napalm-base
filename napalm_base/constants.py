@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 CONFIG_LOCK = True  # must be changed soon!
+TIMEOUT = 60  # seconds
 
 INTERFACE_NULL_SPEED = -1
 
