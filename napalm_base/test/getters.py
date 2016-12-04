@@ -114,6 +114,7 @@ class BaseTestGetters(object):
 
     def test_method_signatures(self):
         """Test that all methods have the same signature."""
+        errors = {}
         cls = self.driver
         attrs = [m for m in dir(cls)]
         for attr in attrs:
@@ -124,18 +125,18 @@ class BaseTestGetters(object):
 
             orig_spec = inspect.getargspec(orig)
             func_spec = inspect.getargspec(func)
-            msg = "Method {} varies.\nNetworkDriver: {}\n{}: {}".format(attr, orig_spec,
-                                                                        cls.__name__, func_spec)
-            assert orig_spec == func_spec, msg
+            if orig_spec != func_spec:
+                errors[attr] = (orig_spec, func_spec)
 
         EXTRA_METHODS = ['__init__', ]
         for method in EXTRA_METHODS:
             if not method.startswith('_'):
                 orig_spec = inspect.getargspec(getattr(NetworkDriver, method))
                 func_spec = inspect.getargspec(getattr(cls, method))
-                msg = "Method {} varies.\nNetworkDriver: {}\n{}: {}".format(attr, orig_spec,
-                                                                            cls.__name__, func_spec)
-                assert orig_spec == func_spec, msg
+                if orig_spec != func_spec:
+                    errors[attr] = (orig_spec, func_spec)
+
+        assert not errors, "Some method vary. \n{}".format(errors)
 
     @wrap_test_cases
     def test_is_alive(self, test_case):
