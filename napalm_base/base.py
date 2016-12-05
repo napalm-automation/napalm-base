@@ -23,7 +23,7 @@ import sys
 import napalm_base.exceptions
 import napalm_base.helpers
 
-import constants as c
+import napalm_base.constants as c
 
 
 class NetworkDriver(object):
