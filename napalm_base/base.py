@@ -23,6 +23,8 @@ import sys
 import napalm_base.exceptions
 import napalm_base.helpers
 
+import constants as c
+
 
 class NetworkDriver(object):
 
@@ -1106,7 +1108,8 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def ping(self, destination, source='', ttl=255, timeout=2, size=100, count=5):
+    def ping(self, destination, source=c.PING_SOURCE, ttl=c.PING_TTL, timeout=c.PING_TIMEOUT,
+             size=c.PING_SIZE, count=c.PING_COUNT):
         """
         Executes ping on the device and returns a dictionary with the result
 
