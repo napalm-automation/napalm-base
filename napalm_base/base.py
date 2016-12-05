@@ -553,7 +553,7 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def cli(self, *commands):
+    def cli(self, commands):
 
         """
         Will execute a list of commands and return the output in a dictionary format.
@@ -1106,7 +1106,7 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def ping(self, destination, source='', ttl=0, timeout=0, size=0, count=0):
+    def ping(self, destination, source='', ttl=255, timeout=2, size=100, count=5):
         """
         Executes ping on the device and returns a dictionary with the result
 
