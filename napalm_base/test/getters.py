@@ -359,7 +359,8 @@ class BaseTestGetters(object):
         """Test get_route_to."""
         destination = '1.0.4.0/24'
         protocol = 'connected'
-        get_route_to_connected = self.device.get_route_to(destination=destination, protocol=protocol)
+        get_route_to_connected = self.device.get_route_to(destination=destination,
+                                                            protocol=protocol)
 
         assert len(get_route_to_connected) > 0
 
