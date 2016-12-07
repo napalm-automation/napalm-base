@@ -134,11 +134,10 @@ class BaseTestGetters(object):
 
         EXTRA_METHODS = ['__init__', ]
         for method in EXTRA_METHODS:
-            if method == '__init__' or not method.startswith('_'):
-                orig_spec = inspect.getargspec(getattr(NetworkDriver, method))
-                func_spec = inspect.getargspec(getattr(cls, method))
-                if orig_spec != func_spec:
-                    errors[attr] = (orig_spec, func_spec)
+            orig_spec = inspect.getargspec(getattr(NetworkDriver, method))
+            func_spec = inspect.getargspec(getattr(cls, method))
+            if orig_spec != func_spec:
+                errors[attr] = (orig_spec, func_spec)
 
         assert not errors, "Some methods vary. \n{}".format(errors.keys())
 
