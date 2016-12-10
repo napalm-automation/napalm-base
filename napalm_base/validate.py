@@ -158,10 +158,9 @@ def compliance_errors(cls, validation_file=None):
       - username napalm password napalm
 
     :param cls: Instance of the driver class
-    :param getters: Specifies the name of the getter function to be tested.
-    :param config: Either 'running' or 'candidate', specifying which config should be tested.
     :param validation_file: Name of the YAML file used for the validation.
-    :return: True if a full match is found, Otherwise, it will return a dictionary.
+    :return: Returns a dictionary detailing the errors. If dictionary is `{}` it means all the
+        checks passed.
     """
     errors = {}
     validation_source = _get_validation_file(validation_file)
