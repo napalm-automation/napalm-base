@@ -56,7 +56,7 @@ def _handle_dict(cls, actual_values, expected_values):
     not_matched = []
     not_matched_dict = {}
     try:
-        delta = dict(set(expected_values.iteritems()).difference(actual_values.iteritems()))
+        delta = dict(set(expected_values.items()).difference(actual_values.items()))
     except TypeError:
         for key in expected_values.keys():
             actual_value = actual_values.get(key)
@@ -93,7 +93,7 @@ def _handle_list(actual_values, expected_values):
         if isinstance(value, dict):
             found = False
             for act_values in actual_values:
-                delta = dict(set(value.iteritems()).difference(act_values.iteritems()))
+                delta = dict(set(value.items()).difference(act_values.items()))
                 if not delta:
                     found = True
             if found is False:
