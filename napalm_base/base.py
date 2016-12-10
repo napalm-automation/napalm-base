@@ -1488,3 +1488,8 @@ class NetworkDriver(object):
         }
         """
         raise NotImplementedError
+
+    def validate(self, getters=None, config=None, validation_file='validate.yml'):
+        """TBD"""
+        return napalm_base.validate.validate(self, getters=getters, config=config,
+                                             validation_file=validation_file)

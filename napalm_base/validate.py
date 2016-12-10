@@ -118,7 +118,7 @@ def _find_config_differences(actual_config, expected_config):
     return not_matched
 
 
-def validate(cls, getters=None, config=None, validation_file=None):
+def compliance_errors(cls, validation_file=None):
     """
     Validate getter methods outputs and configurations comparing them with a validation
     YAML file containing expected results.
@@ -164,23 +164,19 @@ def validate(cls, getters=None, config=None, validation_file=None):
     :return: True if a full match is found, Otherwise, it will return a dictionary.
     """
     errors = {}
-    if getters:
-        getters = _check_getters(cls, getters)
-
-    if config:
-        _check_config(config)
-
     validation_source = _get_validation_file(validation_file)
 
-    if getters:
-        for getter in getters:
-            not_matched_getter = {}
+    for getter, expected_results in validation_source.items():
+        if getter == "get_config":
+            for config, expected_config in expected_results.items():
+                actual_config = cls.get_config(retrieve=config)[config]
+                not_matched_result = _find_config_differences(actual_config, expected_config)
 
-            try:
-                expected_results = validation_source[getter]
-            except KeyError:
-                raise ValidationException('{0} key not found in validation file.'
-                                          ' Check your syntax.'.format(getter))
+                if not_matched_result:
+                    error_string = "Expected but not found in {0} config".format(config)
+                    errors[error_string] = not_matched_result
+        else:
+            not_matched_getter = {}
 
             actual_results = getattr(cls, getter)()
             if isinstance(actual_results, list):
@@ -206,21 +202,4 @@ def validate(cls, getters=None, config=None, validation_file=None):
             if not_matched_getter:
                 errors[getter] = not_matched_getter
 
-    elif config:
-        try:
-            expected_config = validation_source[config]
-        except KeyError:
-            raise ValidationException('{0} key not found in validation file.'
-                                      ' Check your syntax.'.format(config))
-
-        actual_config = cls.get_config(retrieve=config)[config]
-        not_matched_result = _find_config_differences(actual_config, expected_config)
-
-        if not_matched_result:
-            error_string = "Expected but not found in {0} config".format(config)
-            errors[error_string] = not_matched_result
-
-    if not errors:
-        return True
-    else:
-        return errors
+    return errors

@@ -1,0 +1,16 @@
+{
+	"mgmt0": [
+        {
+		"port": "Fa1/0/3",
+		"hostname": "PERIMETER"
+	},
+        {
+		"port": "nxos-spine2",
+		"hostname": "nxos-spine2"
+	}
+    ],
+	"GigabitEthernet2": [{
+		"port": "18",
+		"hostname": "twb-sf-hpsw2"
+	}]
+}
