@@ -3,6 +3,7 @@
 import yaml
 
 from napalm_base.exceptions import ValidationException
+from napalm_base.utils import py23_compat
 
 
 def _check_getters(cls, getters):
@@ -27,7 +28,7 @@ def _get_validation_file(validation_file):
         with open(validation_file, 'r') as stream:
             try:
                 validation_source = yaml.load(stream)
-            except yaml.YAMLError, exc:
+            except yaml.YAMLError as exc:
                 raise ValidationException(exc)
     except IOError:
         raise ValidationException("File {0} not found.".format(validation_file))
@@ -42,7 +43,7 @@ def _find_differences(cls, key, actual_value, expected_values):
     if isinstance(actual_value, dict):
         not_matched_result = _handle_dict(cls, actual_value, expected_values[key])
 
-    elif (isinstance(actual_value, unicode) or
+    elif (isinstance(actual_value, py23_compat.text_type) or
           isinstance(actual_value, int)):
         not_matched_result = _handle_unicode_int(actual_value, expected_values[key])
 
