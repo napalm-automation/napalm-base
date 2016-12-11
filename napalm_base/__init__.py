@@ -55,8 +55,10 @@ __all__ = [
     'network_device'
 ]
 
+
 LIB_PATH_ENV_VAR = 'NAPALM_CONF'
 LIB_PATH_DEFAULT = '~/napalm.conf'
+
 
 def get_network_driver(module_name):
     """
@@ -118,6 +120,7 @@ def get_network_driver(module_name):
     raise ModuleImportError(
         'No class inheriting "napalm_base.base.NetworkDriver" found in "{install_name}".'
         .format(install_name=module_install_name))
+
 
 def network_device(named_device, filename=None):
     """
@@ -196,6 +199,7 @@ def network_device(named_device, filename=None):
 
                 """
 
+
 def _get_device(driver, device_kwargs):
 
     core_keys = ['hostname', 'username', 'password', 'timeout']
@@ -234,4 +238,3 @@ def _get_config_from_file(filename=None):
     config.read(filename)
 
     return config, filename
-
