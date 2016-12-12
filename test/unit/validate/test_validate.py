@@ -1,40 +1,72 @@
 """Tests for the validate operation."""
+from __future__ import unicode_literals
+
 from napalm_base.base import NetworkDriver
-from napalm_base.validate import compliance_errors
 
 import json
 
 import os
+import yaml
 
 
 BASEPATH = os.path.dirname(__file__)
 
 
+def construct_yaml_str(self, node):
+    # Override the default string handling function
+    # to always return unicode objects
+    return self.construct_scalar(node)
+
+
+def _read_yaml(filename):
+    yaml.Loader.add_constructor(u'tag:yaml.org,2002:str', construct_yaml_str)
+    yaml.SafeLoader.add_constructor(u'tag:yaml.org,2002:str', construct_yaml_str)
+    with open(filename, 'r') as f:
+        return yaml.safe_load(f.read())
+
+
 class TestValidate:
-    """Wrapsts tests."""
+    """Wraps tests."""
 
-    def test_simple(self):
+    def test_non_strict_pass(self):
         """A simple test."""
-        mocked_data = os.path.join(BASEPATH, "mocked_data", "simple")
-        device = FakeDriver(mocked_data)
-        errors = compliance_errors(device, os.path.join(mocked_data, "validate.yml"))
-        assert not errors
+        mocked_data = os.path.join(BASEPATH, "mocked_data", "non_strict_pass")
+        expected_report = _read_yaml(os.path.join(mocked_data, "report.yml"))
 
-    def test_simple_fail(self):
-        """A simple test fail."""
-        mocked_data = os.path.join(BASEPATH, "mocked_data", "simple_fail")
         device = FakeDriver(mocked_data)
-        errors = compliance_errors(device, os.path.join(mocked_data, "validate.yml"))
-        assert errors == {'get_arp_table': {'not_matched': [
-                    "Expected but not found: {'interface': 'Ethernet3/1', 'ip': '192.0.2.3'}"]},
-                          'get_bgp_neighbors': {'default': ['Expected key but not found.']}}
+        actual_report = device.compliance_report(os.path.join(mocked_data, "validate.yml"))
 
-    def test_simple_config_fail(self):
+        assert expected_report == actual_report, yaml.safe_dump(actual_report)
+
+    def test_non_strict_fail(self):
         """A simple test."""
-        mocked_data = os.path.join(BASEPATH, "mocked_data", "simple_config_fail")
+        mocked_data = os.path.join(BASEPATH, "mocked_data", "non_strict_fail")
+        expected_report = _read_yaml(os.path.join(mocked_data, "report.yml"))
+
         device = FakeDriver(mocked_data)
-        errors = compliance_errors(device, os.path.join(mocked_data, "validate.yml"))
-        assert errors == {'Expected but not found in running config': ['blah']}
+        actual_report = device.compliance_report(os.path.join(mocked_data, "validate.yml"))
+
+        assert expected_report == actual_report, yaml.safe_dump(actual_report)
+
+    def test_strict_fail(self):
+        """A simple test."""
+        mocked_data = os.path.join(BASEPATH, "mocked_data", "strict_fail")
+        expected_report = _read_yaml(os.path.join(mocked_data, "report.yml"))
+
+        device = FakeDriver(mocked_data)
+        actual_report = device.compliance_report(os.path.join(mocked_data, "validate.yml"))
+
+        assert expected_report == actual_report, yaml.safe_dump(actual_report)
+
+    def test_strict_pass(self):
+        """A simple test."""
+        mocked_data = os.path.join(BASEPATH, "mocked_data", "strict_pass")
+        expected_report = _read_yaml(os.path.join(mocked_data, "report.yml"))
+
+        device = FakeDriver(mocked_data)
+        actual_report = device.compliance_report(os.path.join(mocked_data, "validate.yml"))
+
+        assert expected_report == actual_report, yaml.safe_dump(actual_report)
 
 
 class FakeDriver(NetworkDriver):

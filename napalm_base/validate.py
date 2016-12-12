@@ -1,26 +1,48 @@
-"""Validation methods for the NAPALM base."""
+"""
+Validation methods for the NAPALM base.
+
+Validate getter methods outputs and configurations comparing them with a validation
+YAML file containing expected results.
+
+In order to validate getter methods, YAML file's keys have to match the getter
+method's name willing to validate and its values structure must reflect the getter
+output format.
+
+Example:
+---
+
+get_bgp_neighbors:
+  default:
+    router_id: 192.0.2.2
+    peers:
+      192.0.2.3:
+        is_enabled: false
+
+get_interfaces:
+  Ethernet2/5:
+    is_enabled: true
+    is_up: true
+
+  Vlan100:
+    is_enabled: false
+    is_up: false
+
+In order to validate configuration, the YAML file must contain keys like 'running'
+or 'candidate' and their content must be a list of configuration lines that must be
+present in the configuration. To do that, get_config() method must be supported by
+the network driver.
+
+Example:
+---
+
+running:
+  - username napalm password napalm
+"""
+from __future__ import unicode_literals
 
 import yaml
 
 from napalm_base.exceptions import ValidationException
-from napalm_base.utils import py23_compat
-
-
-def _check_getters(cls, getters):
-    if isinstance(getters, str):
-        getters = [getters]
-
-    for getter in getters:
-        if (getter.startswith('get_') and getter in dir(cls)) is False:
-            raise ValidationException("{0} method not found.".format(getter))
-
-    return getters
-
-
-def _check_config(config):
-    if config not in ['running', 'candidate']:
-        raise ValidationException("{0} config not supported. Only running or "
-                                  "candidate are allowed".format(config))
 
 
 def _get_validation_file(validation_file):
@@ -35,170 +57,104 @@ def _get_validation_file(validation_file):
     return validation_source
 
 
-def _find_differences(cls, key, actual_value, expected_values):
-    not_matched_result = ''
-    if actual_value is None:
-        not_matched_result = "Expected key but not found."
+def _mode(mode_string):
+    mode = {'strict': False}
 
-    if isinstance(actual_value, dict):
-        not_matched_result = _handle_dict(cls, actual_value, expected_values[key])
-
-    elif (isinstance(actual_value, py23_compat.text_type) or
-          isinstance(actual_value, int)):
-        not_matched_result = _handle_unicode_int(actual_value, expected_values[key])
-
-    elif isinstance(actual_value, list):
-        not_matched_result = _handle_list(actual_value, expected_values[key])
-    return not_matched_result
+    for m in mode_string.split():
+        if m not in mode.keys():
+            raise ValidationException("mode '{}' not recognized".format(m))
+        mode[m] = True
+    return mode
 
 
-def _handle_dict(cls, actual_values, expected_values):
-    not_matched = []
-    not_matched_dict = {}
-    try:
-        delta = dict(set(expected_values.items()).difference(actual_values.items()))
-    except TypeError:
-        for key in expected_values.keys():
-            actual_value = actual_values.get(key)
+def _compare_getter_list(src, dst, mode):
+    result = {"complies": True, "present": [], "missing": [], "extra": []}
+    for src_element in src:
+        found = False
+        for index, dst_element in enumerate(dst):
+            intermediate_match = _compare_getter(src_element, dst_element)
+            if intermediate_match:
+                found = True
+                result["present"].append(src_element)
+                dst.pop(index)
+                break
+        if not found:
+            result["complies"] = False
+            result["missing"].append(src_element)
 
-            not_matched_result = _find_differences(cls, key, actual_value, expected_values)
-            if not_matched_result:
-                not_matched_dict[key] = not_matched_result
+    if mode["strict"] and dst:
+        result["extra"] = dst
+        result["complies"] = False
 
-        return not_matched_dict
-
-    if delta:
-        for delta_key in delta.keys():
-            not_matched_string = ''
-            not_matched_string = ("Expected '{0}: {1}', found '{2}: {3}' "
-                                  "instead".format(delta_key, delta[delta_key],
-                                                   delta_key, actual_values[delta_key]))
-            if not_matched_string:
-                not_matched.append(not_matched_string)
-    return not_matched
+    return result
 
 
-def _handle_unicode_int(actual_values, expected_values):
-    not_matched_string = ''
-    if str(actual_values) != str(expected_values):
-        not_matched_string = ("Expected '{0}', "
-                              "found '{1}' instead".format(expected_values, actual_values))
-    return not_matched_string
+def _compare_getter_dict(src, dst, mode):
+    result = {"complies": True, "present": {}, "missing": [], "extra": []}
+
+    for key, src_element in src.items():
+        try:
+            dst_element = dst.pop(key)
+            result["present"][key] = {}
+            intermediate_result = _compare_getter(src_element, dst_element)
+
+            if isinstance(intermediate_result, dict):
+                nested = True
+
+                complies = intermediate_result["complies"]
+
+                if not complies:
+                    result["present"][key]['diff'] = intermediate_result
+            else:
+                complies = intermediate_result
+                nested = False
+                if not complies:
+                    result["present"][key]["actual_value"] = dst_element
+
+            if not complies:
+                result["complies"] = False
+
+            result["present"][key]["complies"] = complies
+            result["present"][key]["nested"] = nested
+        except KeyError:
+            result["missing"].append(key)
+            result["complies"] = False
+
+    if mode["strict"] and dst:
+        result["extra"] = dst.keys()
+        result["complies"] = False
+
+    return result
 
 
-def _handle_list(actual_values, expected_values):
-    not_matched = []
-    not_matched_string = ''
-    for value in expected_values:
-        if isinstance(value, dict):
-            found = False
-            for act_values in actual_values:
-                delta = dict(set(value.items()).difference(act_values.items()))
-                if not delta:
-                    found = True
-            if found is False:
-                not_matched_string = ("Expected but not found: {0}".format(value, actual_values))
-        else:
-            if value not in actual_values:
-                not_matched_string = ("Expected but not found: {0}".format(value, actual_values))
+def _compare_getter(src, dst):
+    if isinstance(src, str):
+        src = u'{}'.format(src)
 
-        if not_matched_string:
-            not_matched.append(not_matched_string)
+    if isinstance(src, dict):
+        mode = _mode(src.pop('_mode', ''))
+        if 'list' in src.keys():
+            if not isinstance(dst, list):
+                # This can happen with nested lists
+                return False
 
-    return not_matched
+            return _compare_getter_list(src['list'], dst, mode)
+        return _compare_getter_dict(src, dst, mode)
+    else:
+        return src == dst
 
 
-def _find_config_differences(actual_config, expected_config):
-    not_matched = []
-
-    for config_line in expected_config:
-        if config_line not in actual_config:
-            not_matched.append(config_line)
-
-    return not_matched
-
-
-def compliance_errors(cls, validation_file=None):
-    """
-    Validate getter methods outputs and configurations comparing them with a validation
-    YAML file containing expected results.
-
-    In order to validate getter methods, YAML file's keys have to match the getter
-    method's name willing to validate and its values structure must reflect the getter
-    output format.
-
-    Example:
-    ---
-
-    get_bgp_neighbors:
-      default:
-        router_id: 192.0.2.2
-        peers:
-          192.0.2.3:
-            is_enabled: false
-
-    get_interfaces:
-      Ethernet2/5:
-        is_enabled: true
-        is_up: true
-
-      Vlan100:
-        is_enabled: false
-        is_up: false
-
-    In order to validate configuration, the YAML file must contain keys like 'running'
-    or 'candidate' and their content must be a list of configuration lines that must be
-    present in the configuration. To do that, get_config() method must be supported by
-    the network driver.
-
-    Example:
-    ---
-
-    running:
-      - username napalm password napalm
-
-    :param cls: Instance of the driver class
-    :param validation_file: Name of the YAML file used for the validation.
-    :return: Returns a dictionary detailing the errors. If dictionary is `{}` it means all the
-        checks passed.
-    """
-    errors = {}
+def compliance_report(cls, validation_file=None):
+    report = {}
     validation_source = _get_validation_file(validation_file)
 
     for getter, expected_results in validation_source.items():
         if getter == "get_config":
-            for config, expected_config in expected_results.items():
-                actual_config = cls.get_config(retrieve=config)[config]
-                not_matched_result = _find_config_differences(actual_config, expected_config)
-
-                if not_matched_result:
-                    error_string = "Expected but not found in {0} config".format(config)
-                    errors[error_string] = not_matched_result
+            # TBD
+            pass
         else:
-            not_matched_getter = {}
-
             actual_results = getattr(cls, getter)()
-            if isinstance(actual_results, list):
-                actual_results = dict(not_matched=actual_results)
-                expected_results = dict(not_matched=expected_results)
+            report[getter] = _compare_getter(expected_results, actual_results)
 
-            for key in expected_results.keys():
-                not_matched_result = ''
-                not_matched = []
-                actual_values = actual_results.get(key)
-                not_matched_result = _find_differences(cls, key, actual_values, expected_results)
-
-                if not_matched_result:
-                    if (isinstance(not_matched_result, dict) or
-                            isinstance(not_matched_result, str)):
-                        not_matched.append(not_matched_result)
-                    else:
-                        not_matched.extend(not_matched_result)
-
-                if not_matched:
-                    not_matched_getter[key] = not_matched
-
-            if not_matched_getter:
-                errors[getter] = not_matched_getter
-
-    return errors
+    report["complies"] = all([e["complies"] for e in report.values()])
+    return report

@@ -1,5 +1,5 @@
 {
-  "global": {
+  "default": {
     "router_id": "192.0.2.2",
     "peers": {
       "192.0.2.3": {

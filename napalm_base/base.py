@@ -25,6 +25,8 @@ import napalm_base.helpers
 
 import napalm_base.constants as c
 
+from napalm_base import validate
+
 
 class NetworkDriver(object):
 
@@ -1489,7 +1491,6 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def validate(self, getters=None, config=None, validation_file='validate.yml'):
+    def compliance_report(self, validation_file='validate.yml'):
         """TBD"""
-        return napalm_base.validate.validate(self, getters=getters, config=config,
-                                             validation_file=validation_file)
+        return validate.compliance_report(self, validation_file=validation_file)
