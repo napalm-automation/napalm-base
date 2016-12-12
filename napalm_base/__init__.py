@@ -25,10 +25,7 @@ import inspect
 import importlib
 import pkg_resources
 
-try:
-    from configparser import ConfigParser as SafeConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser
+import yaml
 
 # Verify Python Version that is running
 try:
@@ -57,7 +54,7 @@ __all__ = [
 
 
 LIB_PATH_ENV_VAR = 'NAPALM_CONF'
-LIB_PATH_DEFAULT = '~/napalm.conf'
+LIB_PATH_DEFAULT = '~/napalm.yml'
 
 
 def get_network_driver(module_name):
@@ -140,24 +137,26 @@ def network_device(named_device, filename=None):
 
     Example (napalm conf file)::
 
-    .. code-block:: python
-        [nxos:n9k1]
-        username: ntc
-        password: pwd123
+    .. code-block:: yaml
+        ---
 
-        [nxos:n9k2]
-        username: ntc
-        password: pwd123
+        n9k1:
+          dev_os: nxos
+          username: ntc
+          password: ntc123
 
-        [ios:csr1]
-        hostname: 10.1.100.10
-        username: ntc
-        password: ntc123
+        csr1:
+          dev_os: ios
+          hostname: 153.92.36.113
+          username: ntc
+          password: ntc123
 
-        [eos:eos-spine1]
-        hostname: 10.1.100.11
-        username: ntc
-        password: ntc123
+        eos-spine1:
+          dev_os: eos
+          hostname: 153.92.39.98
+          username: ntc
+          password: ntc123
+
 
     Example::
 
@@ -172,43 +171,36 @@ def network_device(named_device, filename=None):
 
     """
     config, filename = _get_config_from_file(filename=filename)
-    sections = config.sections()
+    device_kwargs = config.get(named_device)
 
     """
     TODO: NEED TO IMPLEMENT ConfFileNotFoundError
-    if not sections:
-        raise ConfFileNotFoundError(filename)
+    raise ConfFileNotFoundError(filename)
     """
 
-    for section in sections:
-        if ':' in section:
-            device_type, conn_name = section.split(':')
-            if named_device == conn_name:
-                device_kwargs = dict(config.items(section))
-                if 'hostname' not in device_kwargs:
-                    device_kwargs['hostname'] = named_device
+    if device_kwargs:
+        if 'hostname' not in device_kwargs:
+            device_kwargs['hostname'] = named_device
+        device_type = device_kwargs.get('dev_os')
+        driver = get_network_driver(device_type)
+        device = _get_device(driver, device_kwargs)
+        device.open()
+        return device
 
-                driver = get_network_driver(device_type)
-                device = _get_device(driver, device_kwargs)
-                device.open()
-                return device
+    # raise error for device not found
+    """
+    TODO: NEED TO IMPLEMENT
+    raise DeviceNotFoundError(name, filename)
 
-                """
-                TODO: NEED TO IMPLEMENT
-                raise DeviceNotFoundError(name, filename)
-
-                """
+    """
 
 
 def _get_device(driver, device_kwargs):
 
-    core_keys = ['hostname', 'username', 'password', 'timeout']
-    optional_args = dict((k, v) for k, v in device_kwargs.items()
-                         if v is not None and k not in core_keys)
-
     hostname = device_kwargs['hostname']
     un = device_kwargs['username']
     pwd = device_kwargs['password']
+    optional_args = device_kwargs.get('optional_args')
 
     if device_kwargs.get('timeout'):
         timeout = device_kwargs.get('timeout')
@@ -234,7 +226,6 @@ def _get_config_from_file(filename=None):
         else:
             filename = os.path.expanduser(LIB_PATH_DEFAULT)
 
-    config = SafeConfigParser()
-    config.read(filename)
+    config = yaml.load(open(filename))
 
     return config, filename
