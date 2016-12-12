@@ -121,7 +121,7 @@ def _compare_getter_dict(src, dst, mode):
             result["complies"] = False
 
     if mode["strict"] and dst:
-        result["extra"] = dst.keys()
+        result["extra"] = list(dst.keys())
         result["complies"] = False
 
     return result
