@@ -19,7 +19,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # Python std lib
-import os
 import sys
 import inspect
 import importlib
@@ -46,7 +45,7 @@ except pkg_resources.DistributionNotFound:
 
 __all__ = [
     'get_network_driver',  # export the function
-    'NetworkDriver',  # also export the base class
+    'NetworkDriver'  # also export the base class
 ]
 
 
@@ -110,4 +109,3 @@ def get_network_driver(module_name):
     raise ModuleImportError(
         'No class inheriting "napalm_base.base.NetworkDriver" found in "{install_name}".'
         .format(install_name=module_install_name))
-
