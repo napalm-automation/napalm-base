@@ -25,8 +25,6 @@ import inspect
 import importlib
 import pkg_resources
 
-import yaml
-
 # Verify Python Version that is running
 try:
     if not(sys.version_info.major == 2 and sys.version_info.minor == 7) and \
@@ -49,12 +47,7 @@ except pkg_resources.DistributionNotFound:
 __all__ = [
     'get_network_driver',  # export the function
     'NetworkDriver',  # also export the base class
-    'network_device'
 ]
-
-
-LIB_PATH_ENV_VAR = 'NAPALM_CONF'
-LIB_PATH_DEFAULT = '~/napalm.yml'
 
 
 def get_network_driver(module_name):
@@ -118,114 +111,3 @@ def get_network_driver(module_name):
         'No class inheriting "napalm_base.base.NetworkDriver" found in "{install_name}".'
         .format(install_name=module_install_name))
 
-
-def network_device(named_device, filename=None):
-    """
-
-    Instantiate and return an instance of a NetworkDriver
-    If no filename is given the environment variable NAPALM_CONF is checked
-    for a path, and finally then ~/napalm.conf is used.
-
-    Arguments:
-        named_device (string): Name of the device as listed in the napalm configuration file.
-        filename (string): (Optional) Path to napalm configuration file that includes
-            the ``named_device`` argument as section header.
-    Raises:
-        DeviceNameNotFoundError: if the named_device is not found in the
-            napalm configuration file.
-        ConfFileNotFoundError: if no napalm configuration file can be found.
-
-    Example (napalm conf file)::
-
-    .. code-block:: yaml
-        ---
-
-        n9k1:
-          dev_os: nxos
-          username: ntc
-          password: ntc123
-
-        csr1:
-          dev_os: ios
-          hostname: 153.92.36.113
-          username: ntc
-          password: ntc123
-
-        eos-spine1:
-          dev_os: eos
-          hostname: 153.92.39.98
-          username: ntc
-          password: ntc123
-
-
-    Example::
-
-
-    .. code-block:: python
-
-        >>> from napalm import network_device
-        >>> device = network_device('csr1')
-        >>> device
-        <napalm_ios.ios.IOSDriver object at 0x7f8e91392210>
-        >>>
-
-    """
-    config, filename = _get_config_from_file(filename=filename)
-    device_kwargs = config.get(named_device)
-
-    """
-    TODO: NEED TO IMPLEMENT ConfFileNotFoundError
-    raise ConfFileNotFoundError(filename)
-    """
-
-    if device_kwargs:
-        if 'hostname' not in device_kwargs:
-            device_kwargs['hostname'] = named_device
-        device_type = device_kwargs.get('dev_os')
-        driver = get_network_driver(device_type)
-        device = _get_device(driver, device_kwargs)
-        device.open()
-        return device
-
-    # raise error for device not found
-    """
-    TODO: NEED TO IMPLEMENT
-    raise DeviceNotFoundError(name, filename)
-
-    """
-
-
-def _get_device(driver, device_kwargs):
-
-    hostname = device_kwargs['hostname']
-    un = device_kwargs['username']
-    pwd = device_kwargs['password']
-    optional_args = device_kwargs.get('optional_args')
-
-    if device_kwargs.get('timeout'):
-        timeout = device_kwargs.get('timeout')
-        if optional_args:
-            device = driver(hostname, un, pwd, timeout=timeout,
-                            optional_args=optional_args)
-        else:
-            device = driver(hostname, un, pwd, timeout=timeout)
-    else:
-        if optional_args:
-            device = driver(hostname, un, pwd,
-                            optional_args=optional_args)
-        else:
-            device = driver(hostname, un, pwd)
-    return device
-
-
-def _get_config_from_file(filename=None):
-
-    if filename is None:
-        if LIB_PATH_ENV_VAR in os.environ:
-            filename = os.path.expanduser(os.environ[LIB_PATH_ENV_VAR])
-        else:
-            filename = os.path.expanduser(LIB_PATH_DEFAULT)
-
-    config = yaml.load(open(filename))
-
-    return config, filename
