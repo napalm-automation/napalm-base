@@ -61,3 +61,4 @@ env
 test/unit/test_devices.py
 
 report.json
+tags
