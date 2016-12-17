@@ -1,42 +1,7 @@
 """
 Validation methods for the NAPALM base.
 
-Validate getter methods outputs and configurations comparing them with a validation
-YAML file containing expected results.
-
-In order to validate getter methods, YAML file's keys have to match the getter
-method's name willing to validate and its values structure must reflect the getter
-output format.
-
-Example:
----
-
-get_bgp_neighbors:
-  default:
-    router_id: 192.0.2.2
-    peers:
-      192.0.2.3:
-        is_enabled: false
-
-get_interfaces:
-  Ethernet2/5:
-    is_enabled: true
-    is_up: true
-
-  Vlan100:
-    is_enabled: false
-    is_up: false
-
-In order to validate configuration, the YAML file must contain keys like 'running'
-or 'candidate' and their content must be a list of configuration lines that must be
-present in the configuration. To do that, get_config() method must be supported by
-the network driver.
-
-Example:
----
-
-running:
-  - username napalm password napalm
+See: https://napalm.readthedocs.io/en/latest/validate.html
 """
 from __future__ import unicode_literals
 

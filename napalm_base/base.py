@@ -1492,5 +1492,10 @@ class NetworkDriver(object):
         raise NotImplementedError
 
     def compliance_report(self, validation_file='validate.yml'):
-        """TBD"""
+        """
+        Return a compliance report.
+
+        Verify that the device complies with the given validation file and writes a compliance
+        report file. See https://napalm.readthedocs.io/en/latest/validate.html.
+        """
         return validate.compliance_report(self, validation_file=validation_file)
