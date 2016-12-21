@@ -23,7 +23,7 @@ from napalm_base import NetworkDriver
 from napalm_base.utils.py23_compat import text_type
 
 
-NAPALM_TEST_MOCK = eval(os.getenv('NAPALM_TEST_MOCK', default=True))
+NAPALM_TEST_MOCK = eval(os.getenv('NAPALM_TEST_MOCK', default="1"))
 
 
 def list_dicts_diff(prv, nxt):
