@@ -1540,3 +1540,5 @@ class NetworkDriver(object):
                     * action (dict)
                         * forwarding_action (text_type)
                         * log_action (text_type)
+        """
+        raise NotImplementedError
