@@ -1499,3 +1499,44 @@ class NetworkDriver(object):
         report file. See https://napalm.readthedocs.io/en/latest/validate.html.
         """
         return validate.compliance_report(self, validation_file=validation_file)
+
+    def get_acls(self, name=''):
+        """
+        Returns a dictionary of ACLs configured on the device
+
+        Args:
+            name(text_type) - Name of ACL to return, default is all
+
+        Returns:
+            A dictionary of ACLs in OC format:
+            * name (dict)
+                * name (text_type)
+                * description (text_type)
+                * acl_entries (dict)
+                    * sequence_id (int)
+                    * description (text_type)
+                    * ethernet_header (dict)
+                        * source_mac (text_type)
+                        * source_mac_mask (text_type)
+                        * destination_mac (text_type)
+                        * destination_mac_mask (text_type)
+                        * ethertype (text_type)
+                    * ip_protocol_fields (dict)
+                        * ip_version (text_type)
+                        * source_ip_address (text_type)
+                        * source_ip_flow_label (int)
+                        * destination_ip_address (text_type)
+                        * destination_ip_flow_label (int)
+                        * dscp (int)
+                        * protocol (int)
+                        * hop_limit (int)
+                    * transport_fields (dict)
+                        * source_port (text_type)
+                        * destination_port (text_type)
+                        * tcp_flags (dict)
+                            * tcp_flag (dict)
+                                * tcp_flag (int)
+                    * input_interface (text_type)
+                    * action (dict)
+                        * forwarding_action (text_type)
+                        * log_action (text_type)
