@@ -22,8 +22,7 @@ from napalm_base import NetworkDriver
 # text_type is 'unicode' for py2 and 'str' for py3
 from napalm_base.utils.py23_compat import text_type
 
-
-NAPALM_TEST_MOCK = eval(os.getenv('NAPALM_TEST_MOCK', default="1"))
+from napalm_base.test import conftest
 
 
 def list_dicts_diff(prv, nxt):
@@ -113,7 +112,7 @@ def wrap_test_cases(func):
             pytest.skip("Method not implemented")
             return
 
-    if NAPALM_TEST_MOCK:
+    if conftest.NAPALM_TEST_MOCK:
         return mock_wrapper
     else:
         return real_wrapper
