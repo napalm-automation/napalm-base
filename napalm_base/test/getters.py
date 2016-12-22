@@ -12,7 +12,6 @@ except ImportError:
 
 import inspect
 import json
-import os
 
 import pytest
 from napalm_base.test import helpers
