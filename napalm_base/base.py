@@ -1533,7 +1533,7 @@ class NetworkDriver(object):
                     * transport_fields (dict)
                         * source_port (text_type)
                         * destination_port (text_type)
-                        * tcp_flags (dict)
+                        * tcp_flags (list)
                             * tcp_flag (dict)
                                 * tcp_flag (int)
                     * input_interface (text_type)
