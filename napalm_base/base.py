@@ -1508,7 +1508,7 @@ class NetworkDriver(object):
             name(text_type) - Name of ACL to return, default is all
 
         Returns:
-            A dictionary of ACLs in OC format:
+            A dictionary of ACLs in OC format, where unused types are omitted:
             * name (dict)
                 * name (text_type)
                 * description (text_type)
@@ -1540,5 +1540,45 @@ class NetworkDriver(object):
                     * action (dict)
                         * forwarding_action (text_type)
                         * log_action (text_type)
+
+        Example:
+        {
+            u'ACL1': {
+                u'name': u'IPv4-ACL',
+                u'description': u'IPv4 ACL',
+                u'acl_entries': {
+                    10: {
+                        u'sequence_id': 10,
+                        u'description': 'Deny example SSH and log',
+                        u'ethernet_header': {},
+                        u'ip_protocol_fields': {
+                            u'ip_version': u'ipv4',
+                            u'source_ip_address': u'192.0.2.0/24',
+                            u'protocol': 17
+                        },
+                        u'transport_fields': {
+                            u'destination_port': u'22'
+                        },
+                        u'action': {
+                            u'forwarding_action': u'DROP',
+                            u'log_action': u'LOG_SYSLOG',
+                        },
+                    },
+                    20: {
+                        u'sequence_id': 20,
+                        u'description': u'Permit all',
+                        u'ethernet_header': {},
+                        u'ip_protocol_fields': {
+                            u'ip_version': u'ipv4'
+                        },
+                        u'action': {
+                            u'forwarding_action': u'ACCEPT',
+                            u'log_action': u'LOG_NONE',
+                        }
+                    }
+                }
+            }
+        }
+
         """
         raise NotImplementedError
