@@ -5,6 +5,11 @@ from __future__ import unicode_literals
 CONFIG_LOCK = True  # must be changed soon!
 TIMEOUT = 60  # seconds
 
+SUPPORTED_CONFIG_FORMATS = [
+    'text'
+]  # all drivers support at least text
+# each driver must override this value
+
 INTERFACE_NULL_SPEED = -1
 
 BGP_NEIGHBOR_NULL_COUNTER = -1
