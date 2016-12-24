@@ -2,3 +2,4 @@ ddt
 lxml
 napalm-ios
 napalm-eos
+napalm-nxos

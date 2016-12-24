@@ -21,7 +21,7 @@ class TestGetNetworkDriver(unittest.TestCase):
                            'nxos', 'pluribus', 'panos')
     elif PY3:
         # Drivers that support python2 and python3
-        network_drivers = ('eos', 'ios',)
+        network_drivers = ('eos', 'ios', 'nxos')
 
     @data(*network_drivers)
     def test_get_network_driver(self, driver):
