@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-NAPALM CLI Tools: test connectivity
-===================================
+NAPALM CLI Tools: validate
+===========================
 
-Module to test connectivity with the network device through NAPALM.
+Validating deployments from the shell.
 '''
-from __future__ import absolute_import
+
+# Python3 support
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -17,12 +18,13 @@ from napalm_base.clitools.helpers import parse_optional_args
 
 # stdlib
 import sys
+import json
 import logging
-logger = logging.getLogger('cl_napalm_test.py')
+logger = logging.getLogger('cl_napalm_validate.py')
 
 
 def main():
-    args = build_help(connect_test=True)
+    args = build_help(validate=True)
     configure_logging(logger, args.debug)
 
     logger.debug('Getting driver for OS "{driver}"'.format(driver=args.vendor))
@@ -32,12 +34,10 @@ def main():
     logger.debug('Connecting to device "{}" with user "{}" and optional_args={}'.format(
                  args.hostname, args.user, optional_args))
 
-    with driver(args.hostname,
-                args.user,
-                args.password,
-                optional_args=optional_args) as device:
-        logger.debug('Successfully connected to the device: {}'.format(device.hostname))
-        print('Successfully connected to the device')
+    with driver(args.hostname, args.user, args.password, optional_args=optional_args) as device:
+        logger.debug('Generating compliance report')
+        print(json.dumps(device.compliance_report(args.validation_file), indent=4))
+        logger.debug('Closing session')
     sys.exit(0)
 
 
