@@ -81,7 +81,7 @@ class FakeDriver(NetworkDriver):
                 with open(filename, 'r') as f:
                     return json.loads(f.read())
             return func
-        if name.startswith("get_"):
+        if name.startswith("get_") or name == "ping":
             filename = os.path.join(self.path, "{}.json".format(name))
             return load_json(filename)
         else:
