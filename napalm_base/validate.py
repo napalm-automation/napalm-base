@@ -41,7 +41,8 @@ def _compare_getter_list(src, dst, mode):
         found = False
         for index, dst_element in enumerate(dst):
             intermediate_match = _compare_getter(src_element, dst_element)
-            if intermediate_match:
+            if isinstance(intermediate_match, dict) and intermediate_match["complies"] or \
+               not isinstance(intermediate_match, dict) and intermediate_match:
                 found = True
                 result["present"].append(src_element)
                 dst.pop(index)
