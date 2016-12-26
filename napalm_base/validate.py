@@ -118,8 +118,13 @@ def compliance_report(cls, validation_file=None):
             # TBD
             pass
         else:
-            actual_results = getattr(cls, getter)()
-            report[getter] = _compare_getter(expected_results, actual_results)
+            try:
+                actual_results = getattr(cls, getter)()
+                report[getter] = _compare_getter(expected_results, actual_results)
+            except NotImplementedError:
+                report[getter] = {"skipped": True, "reason": "NotImplemented"}
 
-    report["complies"] = all([e["complies"] for e in report.values()])
+    complies = all([e.get("complies", True) for e in report.values()])
+    report["skipped"] = [k for k, v in report.items() if v.get("skipped", False)]
+    report["complies"] = complies
     return report

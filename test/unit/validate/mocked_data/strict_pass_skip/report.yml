@@ -1,6 +1,10 @@
 ---
 complies: true
-skipped: []
+method_not_implemented:
+    reason: NotImplemented
+    skipped: true
+skipped:
+    - method_not_implemented
 get_bgp_neighbors:
   complies: true
   extra: []
