@@ -1,12 +1,20 @@
 ---
 get_facts:
-  os_version: 7.0(3)I2(2d)
+  os_version: 7.0\(3\)I2\(2d\)
   interface_list:
       _mode: strict
       list: [Vlan5,Vlan100, Vlan40, Vlan41, GigabitEthernet0/1, GigabitEthernet0/2, GigabitEthernet0/3,
              GigabitEthernet0/4, GigabitEthernet0/5, GigabitEthernet0/6, GigabitEthernet0/7,
              GigabitEthernet0/8, Port-channel1]
   hostname: n9k2
+
+ping:
+  _kwargs:
+      destination: 8.8.8.8
+      source: 192.168.1.1
+  success:
+      packet_loss: 0
+  _mode: strict
 
 get_bgp_neighbors:
   default:
@@ -19,9 +27,9 @@ get_bgp_neighbors:
         is_enabled: true
         address_family:
           ipv4:
-            sent_prefixes: 5
+            sent_prefixes: ^[1-9]
           ipv6:
-            sent_prefixes: 2
+            sent_prefixes: ^[1-9]
 
 get_interfaces_ip:
   Ethernet2/1:
