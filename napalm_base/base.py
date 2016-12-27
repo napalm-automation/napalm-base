@@ -1508,7 +1508,10 @@ class NetworkDriver(object):
             name(text_type) - Name of ACL to return, default is all
 
         Returns:
-            A dictionary of ACLs in OC format, where unused types are omitted:
+            A dictionary of ACLs in OC format.
+            For src/dest/mask fields, the default is an address and mask that matches all
+            For text types, 'any' means to match any
+            For int types, -1 means to match any
             * name (dict)
                 * name (text_type)
                 * description (text_type)
@@ -1542,22 +1545,34 @@ class NetworkDriver(object):
 
         Example:
         {
-            u'ACL1': {
+            u'IPv4-ACL': {
                 u'name': u'IPv4-ACL',
                 u'description': u'IPv4 ACL',
                 u'acl_entries': {
                     10: {
                         u'sequence_id': 10,
-                        u'description': 'Deny example SSH and log',
-                        u'ethernet_header': {},
+                        u'description': u'Deny example SSH and log',
+                        u'ethernet_header': {
+                            u'source_mac':  u'00:00:00:00:00:00',
+                            u'source_mac_mask': u'00:00:00:00:00:00',
+                            u'destination_mac': u'00:00:00:00:00:00',
+                            u'destination_mac_mask': u'00:00:00:00:00:00',
+                            u'ethertype': u'any'
+                        },
                         u'ip_protocol_fields': {
                             u'ip_version': u'ipv4',
                             u'source_ip_address': u'192.0.2.0/24',
-                            u'protocol': 17
+                            u'source_ip_flow_label': -1,
+                            u'destination_ip_address': u'0.0.0.0/0',
+                            u'destination_ip_flow_label': -1,
+                            u'dscp': -1,
+                            u'protocol': 17,
+                            u'hop_limit': -1
                         },
                         u'transport_fields': {
                             u'destination_port': u'22'
                         },
+                        u'input_interface': u'any',
                         u'action': {
                             u'forwarding_action': u'DROP',
                             u'log_action': u'LOG_SYSLOG',
@@ -1565,11 +1580,24 @@ class NetworkDriver(object):
                     },
                     20: {
                         u'sequence_id': 20,
-                        u'description': u'Permit all',
-                        u'ethernet_header': {},
+                        u'description': u'',
+                        u'ethernet_header': {
+                            u'source_mac':  u'00:00:00:00:00:00',
+                            u'source_mac_mask': u'00:00:00:00:00:00',
+                            u'destination_mac': u'00:00:00:00:00:00',
+                            u'destination_mac_mask': u'00:00:00:00:00:00',
+                            u'ethertype': u'any'
                         u'ip_protocol_fields': {
-                            u'ip_version': u'ipv4'
+                            u'ip_version': u'ipv4',
+                            u'source_ip_address': u'0.0.0.0/0',
+                            u'source_ip_flow_label': -1,
+                            u'destination_ip_address': u'0.0.0.0/0',
+                            u'destination_ip_flow_label': -1,
+                            u'dscp': -1,
+                            u'protocol': -1,
+                            u'hop_limit': -1
                         },
+                        u'input_interface', u'any',
                         u'action': {
                             u'forwarding_action': u'ACCEPT',
                             u'log_action': u'LOG_NONE',
