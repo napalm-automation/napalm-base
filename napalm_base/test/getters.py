@@ -520,8 +520,10 @@ class BaseTestGetters(object):
                 assert isinstance(acl_seq, int)
                 assert helpers.test_model(models.acl_entry, acl_entry)
                 assert helpers.test_model(models.acl_ethernet_header, acl_entry['ethernet_header'])
-                assert helpers.test_model(models.acl_ip_protocol_fields, acl_entry['ip_protocol_fields'])
+                assert helpers.test_model(models.acl_ip_protocol_fields,
+                                          acl_entry['ip_protocol_fields'])
                 if acl_entry['ip_protocol_fields'] in (6, 17):
-                    assert helpers.test_model(models.acl_transport_fields, acl_entry['transport_fields'])
+                    assert helpers.test_model(models.acl_transport_fields,
+                                              acl_entry['transport_fields'])
                 assert helpers.test_model(models.acl_action, acl_entry['action'])
         return get_acls
