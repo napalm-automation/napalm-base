@@ -506,3 +506,22 @@ class BaseTestGetters(object):
             for policy_term in policy_details:
                 assert helpers.test_model(models.firewall_policies, policy_term)
         return get_firewall_policies
+
+    @wrap_test_cases
+    def test_get_acls(self, test_case):
+        """Test get_acls method."""
+        get_acl = self.device.get_acls('ipv4_ext_test_acl')
+        get_acls = self.device.get_acls()
+        assert isinstance(get_acl, dict)
+        assert isinstance(get_acls, dict)
+        for acl_name, acl in get_acls.items():
+            assert helpers.test_model(models.acl, acl)
+            for acl_seq, acl_entry in acl['acl_entries'].items():
+                assert isinstance(acl_seq, int)
+                assert helpers.test_model(models.acl_entry, acl_entry)
+                assert helpers.test_model(models.acl_ethernet_header, acl_entry['ethernet_header'])
+                assert helpers.test_model(models.acl_ip_protocol_fields, acl_entry['ip_protocol_fields'])
+                if acl_entry['ip_protocol_fields'] in (6, 17):
+                    assert helpers.test_model(models.acl_transport_fields, acl_entry['transport_fields'])
+                assert helpers.test_model(models.acl_action, acl_entry['action'])
+        return get_acls
