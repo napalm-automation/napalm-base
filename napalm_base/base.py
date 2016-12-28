@@ -1570,7 +1570,11 @@ class NetworkDriver(object):
                             u'hop_limit': -1
                         },
                         u'transport_fields': {
-                            u'destination_port': u'22'
+                            u'source_port': u'any',
+                            u'destination_port': u'22',
+                            u'tcp_flags': [
+                                u'any'
+                            ]
                         },
                         u'input_interface': u'any',
                         u'action': {
