@@ -7,4 +7,5 @@ napalm-junos
 napalm-nxos
 napalm-panos
 napalm-pluribus
+napalm-ros
 napalm-vyos
