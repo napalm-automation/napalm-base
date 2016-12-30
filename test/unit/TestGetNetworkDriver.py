@@ -15,7 +15,8 @@ from napalm_base.utils.py23_compat import PY2, PY3
 class TestGetNetworkDriver(unittest.TestCase):
     """Test the method get_network_driver."""
 
-    drivers_common = ('eos', 'ios', 'iosxr', 'IOS-XR', 'junos', 'ros', 'nxos', 'pluribus', 'panos', 'vyos')
+    drivers_common = ('eos', 'ios', 'iosxr', 'IOS-XR', 'junos', 'ros', 'nxos',
+                      'pluribus', 'panos', 'vyos')
     drivers_py2_only = ('fortios', 'ibm')
     if PY2:
         # All drivers support python2
