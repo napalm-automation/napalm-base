@@ -55,6 +55,7 @@ def _compare_getter_list(src, dst, mode):
                     i += 1
             except IndexError:
                 break
+
         if not found:
             result["complies"] = False
             result["missing"].append(src_element)
