@@ -57,11 +57,7 @@ def _compare_getter_list(src, dst, mode):
                 break
         if not found:
             result["complies"] = False
-
-            if isinstance(intermediate_match, dict):
-                result["missing"].append(intermediate_match)
-            else:
-                result["missing"].append(src_element)
+            result["missing"].append(src_element)
 
     if mode["strict"] and dst:
         result["extra"] = dst
