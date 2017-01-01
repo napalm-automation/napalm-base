@@ -16,6 +16,15 @@ ping:
       packet_loss: 0
   _mode: strict
 
+get_route_to:
+  _kwargs:
+    destination: 185.155.180.192/26
+  "10.155.180.192/26":
+    list:
+     - next_hop: 10.155.180.22
+       outgoing_interface: "irb.0"
+       protocol: "BGP"
+
 get_bgp_neighbors:
   default:
     router_id: 192.0.2.2
