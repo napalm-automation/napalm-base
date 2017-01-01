@@ -28,7 +28,8 @@ get_route_to:
     list:
      - next_hop: 10.155.180.22
        outgoing_interface: "irb.0"
-       protocol: "OSPF"
+       protocol: "BGP"
+    _mode: strict
 
 get_interfaces_ip:
   Ethernet2/1:

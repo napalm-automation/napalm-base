@@ -27,7 +27,7 @@
 			"protocol": "BGP",
 			"last_active": false,
 			"next_hop": "10.155.180.18",
-			"outgoing_interface": "ge-1/0/03.0",
+			"outgoing_interface": "ge-1/0/0.0",
 			"preference": 170,
 			"inactive_reason": "Not Best in its group - Interior > Exterior > Exterior via Interior",
 			"current_active": false,
