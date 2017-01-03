@@ -1510,6 +1510,7 @@ class NetworkDriver(object):
         Returns:
             A dictionary of ACLs in OC format.
             For src/dest/mask fields, the default is an address and mask that matches all
+            Dictionaries MUST be present, but MAY be empty
             For text types, 'any' means to match any
             For int types, -1 means to match any
             * name (dict)
