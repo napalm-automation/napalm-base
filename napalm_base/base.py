@@ -1553,13 +1553,15 @@ class NetworkDriver(object):
                     10: {
                         u'sequence_id': 10,
                         u'description': u'Deny example SSH and log',
-                        u'ethernet_header': {
-                            u'source_mac':  u'00:00:00:00:00:00',
-                            u'source_mac_mask': u'00:00:00:00:00:00',
-                            u'destination_mac': u'00:00:00:00:00:00',
-                            u'destination_mac_mask': u'00:00:00:00:00:00',
-                            u'ethertype': u'any'
-                        },
+                        u'ethernet_header': {},
+                        u'ip_protocol_fields': {},
+                        u'transport_fields': {},
+                        u'action: {}
+                    },
+                    20: {
+                        u'sequence_id': 20,
+                        u'description': u'',
+                        u'ethernet_header': {},
                         u'ip_protocol_fields': {
                             u'ip_version': u'ipv4',
                             u'source_ip_address': u'192.0.2.0/24',
@@ -1583,15 +1585,10 @@ class NetworkDriver(object):
                             u'log_action': u'LOG_SYSLOG',
                         },
                     },
-                    20: {
-                        u'sequence_id': 20,
+                    30: {
+                        u'sequence_id': 30,
                         u'description': u'',
-                        u'ethernet_header': {
-                            u'source_mac':  u'00:00:00:00:00:00',
-                            u'source_mac_mask': u'00:00:00:00:00:00',
-                            u'destination_mac': u'00:00:00:00:00:00',
-                            u'destination_mac_mask': u'00:00:00:00:00:00',
-                            u'ethertype': u'any'
+                        u'ethernet_header': {},
                         u'ip_protocol_fields': {
                             u'ip_version': u'ipv4',
                             u'source_ip_address': u'0.0.0.0/0',
@@ -1602,6 +1599,7 @@ class NetworkDriver(object):
                             u'protocol': -1,
                             u'hop_limit': -1
                         },
+                        u'transport_fields': {},
                         u'input_interface', u'any',
                         u'action': {
                             u'forwarding_action': u'ACCEPT',
