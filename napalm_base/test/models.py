@@ -333,3 +333,49 @@ firewall_policies = {
     'dst_zone': text_type,
     'action': text_type
 }
+
+acl = {
+    'name': text_type,
+    'description': text_type,
+    'acl_entries': dict
+}
+
+acl_entry = {
+    'sequence_id': int,
+    'description': text_type,
+    'ethernet_header': dict,
+    'ip_protocol_fields': dict,
+    'transport_fields': dict,
+    'input_interface': text_type,
+    'action': dict
+}
+
+acl_ethernet_header = {
+    'source_mac': text_type,
+    'source_mac_mask': text_type,
+    'destination_mac': text_type,
+    'destination_mac_mask': text_type,
+    'ethertype': text_type
+}
+
+acl_ip_protocol_fields = {
+    'ip_version': text_type,
+    'source_ip_address': text_type,
+    'source_ip_flow_label': int,
+    'destination_ip_address': text_type,
+    'destination_ip_flow_label': int,
+    'dscp': int,
+    'protocol': int,
+    'hop_limit': int
+}
+
+acl_transport_fields = {
+    'source_port': text_type,
+    'destination_port': text_type,
+    'tcp_flags': list,
+}
+
+acl_action = {
+    'forwarding_action': text_type,
+    'log_action': text_type
+}
