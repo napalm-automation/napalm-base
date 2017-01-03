@@ -1499,3 +1499,116 @@ class NetworkDriver(object):
         report file. See https://napalm.readthedocs.io/en/latest/validate.html.
         """
         return validate.compliance_report(self, validation_file=validation_file)
+
+    def get_acls(self, name=''):
+        """
+        Returns a dictionary of ACLs configured on the device
+
+        Args:
+            name(text_type) - Name of ACL to return, default is all
+
+        Returns:
+            A dictionary of ACLs in OC format.
+            For src/dest/mask fields, the default is an address and mask that matches all
+            Dictionaries MUST be present, but MAY be empty
+            For text types, 'any' means to match any
+            For int types, -1 means to match any
+            * name (dict)
+                * name (text_type)
+                * description (text_type)
+                * acl_entries (dict)
+                    * sequence_id (int)
+                    * description (text_type)
+                    * ethernet_header (dict)
+                        * source_mac (text_type)
+                        * source_mac_mask (text_type)
+                        * destination_mac (text_type)
+                        * destination_mac_mask (text_type)
+                        * ethertype (text_type)
+                    * ip_protocol_fields (dict)
+                        * ip_version (text_type)
+                        * source_ip_address (text_type)
+                        * source_ip_flow_label (int)
+                        * destination_ip_address (text_type)
+                        * destination_ip_flow_label (int)
+                        * dscp (int)
+                        * protocol (int)
+                        * hop_limit (int)
+                    * transport_fields (dict)
+                        * source_port (text_type)
+                        * destination_port (text_type)
+                        * tcp_flags (list)
+                            * (text_type)
+                    * input_interface (text_type)
+                    * action (dict)
+                        * forwarding_action (text_type)
+                        * log_action (text_type)
+
+        Example:
+        {
+            u'IPv4-ACL': {
+                u'name': u'IPv4-ACL',
+                u'description': u'IPv4 ACL',
+                u'acl_entries': {
+                    10: {
+                        u'sequence_id': 10,
+                        u'description': u'Deny example SSH and log',
+                        u'ethernet_header': {},
+                        u'ip_protocol_fields': {},
+                        u'transport_fields': {},
+                        u'action: {}
+                    },
+                    20: {
+                        u'sequence_id': 20,
+                        u'description': u'',
+                        u'ethernet_header': {},
+                        u'ip_protocol_fields': {
+                            u'ip_version': u'ipv4',
+                            u'source_ip_address': u'192.0.2.0/24',
+                            u'source_ip_flow_label': -1,
+                            u'destination_ip_address': u'0.0.0.0/0',
+                            u'destination_ip_flow_label': -1,
+                            u'dscp': -1,
+                            u'protocol': 17,
+                            u'hop_limit': -1
+                        },
+                        u'transport_fields': {
+                            u'source_port': u'any',
+                            u'destination_port': u'22',
+                            u'tcp_flags': [
+                                u'any'
+                            ]
+                        },
+                        u'input_interface': u'any',
+                        u'action': {
+                            u'forwarding_action': u'DROP',
+                            u'log_action': u'LOG_SYSLOG',
+                        },
+                    },
+                    30: {
+                        u'sequence_id': 30,
+                        u'description': u'',
+                        u'ethernet_header': {},
+                        u'ip_protocol_fields': {
+                            u'ip_version': u'ipv4',
+                            u'source_ip_address': u'0.0.0.0/0',
+                            u'source_ip_flow_label': -1,
+                            u'destination_ip_address': u'0.0.0.0/0',
+                            u'destination_ip_flow_label': -1,
+                            u'dscp': -1,
+                            u'protocol': -1,
+                            u'hop_limit': -1
+                        },
+                        u'transport_fields': {},
+                        u'input_interface', u'any',
+                        u'action': {
+                            u'forwarding_action': u'ACCEPT',
+                            u'log_action': u'LOG_NONE',
+                        }
+                    }
+                }
+            }
+        }
+
+        """
+        raise NotImplementedError
