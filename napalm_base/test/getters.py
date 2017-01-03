@@ -528,5 +528,6 @@ class BaseTestGetters(object):
                 if acl_entry.get('transport_fields', None) is not {}:
                     assert helpers.test_model(models.acl_transport_fields,
                                               acl_entry['transport_fields'])
-                assert helpers.test_model(models.acl_action, acl_entry['action'])
+                if acl_entry.get('action', None) is not {}:
+                    assert helpers.test_model(models.acl_action, acl_entry['action'])
         return get_acls
