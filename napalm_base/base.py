@@ -1511,20 +1511,20 @@ class NetworkDriver(object):
     def _oc_all_config(self):
         raise NotImplementedError
 
-    def _find_oc_mappings_file(self):
+    def _find_oc_mappings_file(self, filename):
         """Find the file containing oc mappings."""
         # Find base_dir of submodule
         module_dir = os.path.dirname(sys.modules[self.__module__].__file__)
 
-        full_path = os.path.join(module_dir, 'openconfig_mappings.yaml')
+        full_path = os.path.join(module_dir, filename)
         if os.path.exists(full_path):
             return full_path
         else:
             raise IOError("Couldn't find file with oc mappings: {}".format(full_path))
 
-    def oc_populate_interfaces(self):
+    def oc_populate_interfaces(self, mappings_file):
         self.interfaces = napalm_yang.oc_if.Interfaces().interfaces
-        filename = self._find_oc_mappings_file()
+        filename = self._find_oc_mappings_file(mappings_file)
 
         with open(filename, mode='r') as f:
             try:
