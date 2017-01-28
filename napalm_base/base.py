@@ -18,6 +18,7 @@ from __future__ import unicode_literals
 
 # std libs
 import sys
+import os
 
 # local modules
 import napalm_base.exceptions
@@ -1510,11 +1511,26 @@ class NetworkDriver(object):
     def _oc_all_config(self):
         raise NotImplementedError
 
+    def _find_oc_mappings_file(self):
+        """Find the file containing oc mappings."""
+        # Find base_dir of submodule
+        module_dir = os.path.dirname(sys.modules[self.__module__].__file__)
+
+        full_path = os.path.join(module_dir, 'openconfig_mappings.yaml')
+        if os.path.exists(full_path):
+            return full_path
+        else:
+            raise IOError("Couldn't find file with oc mappings: {}".format(full_path))
+
     def oc_populate_interfaces(self):
         self.interfaces = napalm_yang.oc_if.Interfaces().interfaces
+        filename = self._find_oc_mappings_file()
 
-        with open("napalm_eos/openconfig_mappings.yaml", "r") as f:
-            oc_mappings = yaml.load(f.read())
+        with open(filename, mode='r') as f:
+            try:
+                oc_mappings = yaml.load(f.read())
+            except ValueError:
+                raise ValueError("No YAML object could be decoded on filename: {}".format(filename))
 
         config = self._oc_all_config()
 
