@@ -2,3 +2,4 @@ jtextfsm
 jinja2
 netaddr
 pyYAML
+napalm-yang

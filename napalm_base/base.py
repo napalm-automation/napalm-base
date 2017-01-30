@@ -26,6 +26,10 @@ import napalm_base.helpers
 import napalm_base.constants as c
 
 from napalm_base import validate
+from napalm_base import yang_helpers
+
+
+import napalm_yang
 
 
 class NetworkDriver(object):
@@ -1499,3 +1503,14 @@ class NetworkDriver(object):
         report file. See https://napalm.readthedocs.io/en/latest/validate.html.
         """
         return validate.compliance_report(self, validation_file=validation_file)
+
+    def _oc_all_config(self):
+        raise NotImplementedError
+
+    def oc_populate_interfaces(self):
+        self.interfaces = napalm_yang.oc_if.Interfaces().interfaces
+        config = self._oc_all_config()
+        return yang_helpers.TextExtractor().populate(self.interfaces, config)
+
+    def translate_yang_model(self, model):
+        return yang_helpers.TextTranslator().translate(model)
