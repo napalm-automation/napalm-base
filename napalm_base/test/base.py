@@ -569,3 +569,13 @@ class TestGettersNetworkDriver(object):
                 self._test_model(models.network_instance_interfaces, network_instance['interfaces'])
 
         self.assertTrue(result)
+
+    def test_get_eigrp_neighbors(self):
+        """Test get_eigrp_neighbors method."""
+        try:
+            get_eigrp_neighbors = self.device.get_eigrp_neighbors()
+        except NotImplementedError:
+            raise SkipTest()
+
+        assert isinstance(get_eigrp_neighbors, dict)
+        assert self._test_model(models.eigrp_config_neighbors, get_eigrp_neighbors) 

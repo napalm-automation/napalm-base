@@ -333,3 +333,17 @@ firewall_policies = {
     'dst_zone': text_type,
     'action': text_type
 }
+
+eigrp_config_neighbors = {
+    'interface': text_type,
+    'holdtime': int,
+    'Uptime': int,
+    'q_count': int,
+    'seq_num': int,
+    'srtt': int,
+    'rto': int,
+    'version': text_type,
+    'retransmits': int,
+    'retries': int,
+    'restart_time': int
+}
