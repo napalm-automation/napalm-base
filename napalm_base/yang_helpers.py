@@ -1,6 +1,5 @@
 import napalm_yang
 
-import yaml
 import re
 
 
@@ -13,26 +12,23 @@ def translate_string(string, **kwargs):
 
 class TextTranslator:
 
-    def translate(self, model):
-        with open("napalm_eos/openconfig_translation.yaml", "r") as f:
-            translation_map = yaml.load(f.read())["interfaces"]
+    def translate(self, obj, translation_map):
+        return self._translate_yang_model(obj, translation_map)
 
-        return self._translate_yang_model(model, translation_map)
-
-    def _translate_yang_model(self, model, translation_map):
+    def _translate_yang_model(self, obj, translation_map):
         translation = ""
-        for k, v in model.items():
+        for k, v in obj.items():
             if issubclass(v.__class__, napalm_yang.List):
                 translation += self._yang_translate_list(v, translation_map[k])
             else:
                 if issubclass(v.__class__, napalm_yang.BaseBinding):
                     if not v._meta["config"]:
                         continue
-                    translation += self._translate_yang_model(getattr(model, k), translation_map[k])
+                    translation += self._translate_yang_model(getattr(obj, k), translation_map[k])
                 translation += self._yang_translate_string(translation_map[k].get("_string", ""),
-                                                           value=getattr(model, k))
+                                                           value=getattr(obj, k))
                 translation += self._yang_translate_map(translation_map[k].get("_map", {}),
-                                                        value=getattr(model, k))
+                                                        value=getattr(obj, k))
         return translation
 
     def _yang_translate_list(self, l, translation_map):
@@ -62,11 +58,8 @@ class TextExtractor:
     def __init__(self):
         self.key = None
 
-    def populate(self, model, config):
-        with open("napalm_eos/openconfig_mappings.yaml", "r") as f:
-            oc_mappings = yaml.load(f.read())
-
-        self.parse_text(model, config, config, oc_mappings["interfaces"])
+    def populate(self, model, config, mappings):
+        self.parse_text(model, config, config, mappings)
 
     def parse_text(self, model, config, partial_config, mappings):
         for k, v in model.items():
