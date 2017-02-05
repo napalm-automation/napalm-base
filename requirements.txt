@@ -2,4 +2,4 @@ jtextfsm
 jinja2
 netaddr
 pyYAML
-napalm-yang
+-e git://github.com/napalm-automation/napalm-yang.git@oc-poc#egg=napalm-yang
