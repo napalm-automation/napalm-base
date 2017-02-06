@@ -1548,3 +1548,12 @@ class NetworkDriver(object):
             translation_map = yaml.load(f.read())
 
         return yang_helpers.TextTranslator().translate(obj, translation_map)
+
+    def merge_model(self, candidate, running, model):
+        model_file = model if "yaml" in model else "{}.yaml".format(model)
+        filename = self._find_yang_file(model_file, "translators")
+
+        with open(filename, "r") as f:
+            translation_map = yaml.load(f.read())
+
+        return yang_helpers.TextTranslator().translate(candidate, translation_map, running)
