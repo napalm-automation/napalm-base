@@ -131,8 +131,6 @@ def compliance_report(cls, validation_file=None):
     report = {}
     validation_source = _get_validation_file(validation_file)
 
-    if isinstance(validation_source, dict):
-        validation_source = [validation_source]
     for validation_check in validation_source:
         for getter, expected_results in validation_check.items():
             if getter == "get_config":
