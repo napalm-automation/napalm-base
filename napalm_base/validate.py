@@ -131,19 +131,22 @@ def compliance_report(cls, validation_file=None):
     report = {}
     validation_source = _get_validation_file(validation_file)
 
-    for getter, expected_results in validation_source.items():
-        if getter == "get_config":
-            # TBD
-            pass
-        else:
-            key = expected_results.pop("_name", "") or getter
+    if isinstance(validation_source, dict):
+        validation_source = [validation_source]
+    for validation_check in validation_source:
+        for getter, expected_results in validation_check.items():
+            if getter == "get_config":
+                # TBD
+                pass
+            else:
+                key = expected_results.pop("_name", "") or getter
 
-            try:
-                kwargs = expected_results.pop('_kwargs', {})
-                actual_results = getattr(cls, getter)(**kwargs)
-                report[key] = _compare_getter(expected_results, actual_results)
-            except NotImplementedError:
-                report[key] = {"skipped": True, "reason": "NotImplemented"}
+                try:
+                    kwargs = expected_results.pop('_kwargs', {})
+                    actual_results = getattr(cls, getter)(**kwargs)
+                    report[key] = _compare_getter(expected_results, actual_results)
+                except NotImplementedError:
+                    report[key] = {"skipped": True, "reason": "NotImplemented"}
 
     complies = all([e.get("complies", True) for e in report.values()])
     report["skipped"] = [k for k, v in report.items() if v.get("skipped", False)]
