@@ -59,3 +59,12 @@
       ipv4:
         192.0.2.1:
           prefix_length: 30
+
+- get_lldp_neighbors:
+    _mode: strict
+    ge-1/0/2:
+      - hostname: fw1[ab].private.lon2
+        port: "ethernet1/13"
+    ge-1/0/3:
+      - hostname: "border2.private.lon2"
+        port: "519"
