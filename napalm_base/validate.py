@@ -125,16 +125,19 @@ def _compare_getter(src, dst):
             return m is not None
         elif(type(src) == type(dst) == list):
             pairs = zip(src, dst)
-            diff_lists = [[(k, x[k], y[k]) for k in x if not re.search(x[k], y[k])] for x, y in pairs if x != y]
+            diff_lists = [[(k, x[k], y[k])
+                          for k in x if not re.search(x[k], y[k])]
+                          for x, y in pairs if x != y]
             return empty_tree(diff_lists)
         else:
             return src == dst
+
 
 def empty_tree(input_list):
     """Recursively iterate through values in nested lists."""
     for item in input_list:
         if not isinstance(item, list) or not empty_tree(item):
-             return False
+            return False
     return True
 
 
