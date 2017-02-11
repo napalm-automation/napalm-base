@@ -796,6 +796,7 @@ class NetworkDriver(object):
         addresses as keys.
         Each IP Address dictionary has the following keys:
             * prefix_length (int)
+            * primary_ip (boolean)
 
         Example::
 
@@ -803,7 +804,11 @@ class NetworkDriver(object):
                 u'FastEthernet8': {
                     u'ipv4': {
                         u'10.66.43.169': {
-                            'prefix_length': 22
+                            'prefix_length': 22,
+                            'primary_ip': True
+                        },
+                        u'10.66.50.1': {
+                            'prefix_length': 24
                         }
                     }
                 },
@@ -831,7 +836,8 @@ class NetworkDriver(object):
                 u'Tunnel0': {
                     u'ipv4': {
                         u'10.63.100.9': {
-                            'prefix_length': 24
+                            'prefix_length': 24,
+                            'primary_ip': True
                         }
                     }
                 }
