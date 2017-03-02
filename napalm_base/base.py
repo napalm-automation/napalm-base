@@ -166,11 +166,11 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def commit_config(self, revert_in=0):
+    def commit_config(self, confirmed=0):
         """
         Commits the changes requested by the method load_replace_candidate or load_merge_candidate.
 
-        :param revert_in: Number of seconds until rollback. Don't revert if 0.
+        :param confirmed: Number of minutes until rollback. Don't revert if 0.
         """
         raise NotImplementedError
 

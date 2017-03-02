@@ -62,7 +62,7 @@ class TestConfigNetworkDriver(object):
     def test_replacing_and_committing_config_with_confirm(self):
         try:
             self.device.load_replace_candidate(filename='%s/new_good.conf' % self.vendor)
-            self.device.commit_config(revert_in=60)
+            self.device.commit_config(confirmed=60)
             self.device.commit_confirm()
         except NotImplementedError:
             raise SkipTest()
