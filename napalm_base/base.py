@@ -170,6 +170,15 @@ class NetworkDriver(object):
         """
         Commits the changes requested by the method load_replace_candidate or load_merge_candidate.
 
+        If you are operating on remote devices without out of band network access and/or there \
+        is a risk that you could lose access to your device after commit, you can use commit \
+        confirmed functionality. You have to provide an additional argument (confirmed). \
+        It defines how long (in minutes) device will wait for your confirmation. \
+        You can confirm the change by executing commit_confirm(). A device will rollback \
+        changes by itself if confirmation is not sent or confirmation message can not \
+        reach the device. For example, device will wait 5 minutes for confirmation, \
+        after that changes will be reverted::
+
         :param confirmed: Number of minutes until rollback. Don't revert if 0.
         """
         raise NotImplementedError
