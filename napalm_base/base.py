@@ -1492,6 +1492,26 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
+    def get_static_rp_config(self):
+        """
+        Returns a dictionary of VRFs and their configured static PIM RPs, where unset keywords
+        are type None.
+
+        Example:
+
+        {
+            u'default': [{
+                u'acl': None,
+                u'bsr_override': None,
+                u'hashmask': None,
+                u'mcast_subnet': '224.0.0.0/4',
+                u'priority': None,
+                u'rp_addr': '192.0.2.1'
+            }]
+        }
+        """
+        raise NotImplementedError
+
     def compliance_report(self, validation_file='validate.yml'):
         """
         Return a compliance report.
