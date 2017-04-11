@@ -12,32 +12,50 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+# Python3 support
+from __future__ import print_function
+from __future__ import unicode_literals
+
+
 class ModuleImportError(Exception):
     pass
+
 
 class ConnectionException(Exception):
     pass
 
+
 class ReplaceConfigException(Exception):
     pass
+
 
 class MergeConfigException(Exception):
     pass
 
+
 class SessionLockedException(Exception):
     pass
+
 
 class CommandTimeoutException(Exception):
     pass
 
+
 class CommandErrorException(Exception):
     pass
+
 
 class DriverTemplateNotImplemented(Exception):
     pass
 
+
 class TemplateNotImplemented(Exception):
     pass
 
+
 class TemplateRenderException(Exception):
+    pass
+
+
+class ValidationException(Exception):
     pass

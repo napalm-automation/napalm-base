@@ -11,13 +11,16 @@ You will need the boxes:
     * To provision and test JunOS first you have to add the ssh vagrant ssh key into the ssh-agent. I.e.:
         ssh-add /opt/vagrant/embedded/gems/gems/vagrant-1.7.4/keys/vagrant
   * csr100v
+  * VyOS - higebu/vyos-1.1.7-amd64
 
 For running unittests always start the base box and the box you want to test:
 
     vagrant up base
 
 """
+
 Vagrant.configure(2) do |config|
+  config.vbguest.auto_update = false
 
   config.vm.define "base" do |base|
     base.vm.box = "hashicorp/precise64"
@@ -64,6 +67,27 @@ Vagrant.configure(2) do |config|
 
     ios.vm.network "private_network", virtualbox__intnet: "link_1", ip: "169.254.1.11", auto_config: false
     ios.vm.network "private_network", virtualbox__intnet: "link_2", ip: "169.254.1.11", auto_config: false
+  end
+
+  config.vm.define "ros" do |ros|
+    # Download from https://drive.google.com/open?id=0B7lhzJhvsd-8dFB0NnNFUm52cjA
+    ros.vm.box = "chr-6.37.4"
+    ros.vm.network :forwarded_port, guest: 22, host: 12205, id: 'ssh'
+    ros.vm.network :forwarded_port, guest: 8728, host: 8728, id: 'api'
+    ros.vm.network :forwarded_port, guest: 8729, host: 8729, id: 'apissl'
+    ros.ssh.username = 'admin'
+    ros.ssh.password = ''
+    ros.ssh.insert_key = false
+    config.vm.synced_folder ".", "/vagrant", :disabled => true
+  end
+
+  config.vm.define "vyos" do |vyos|
+    vyos.vm.box = "higebu/vyos"
+
+    vyos.vm.network :forwarded_port, guest: 22, host: 12206, id: 'ssh'
+
+    vyos.vm.network "private_network", virtualbox__intnet: "link_1", ip: "169.254.1.11", auto_config: false
+    vyos.vm.network "private_network", virtualbox__intnet: "link_2", ip: "169.254.1.11", auto_config: false
   end
 
 end

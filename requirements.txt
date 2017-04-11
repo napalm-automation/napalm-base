@@ -1,2 +1,4 @@
+jtextfsm
 jinja2
-gtextfsm
+netaddr
+pyYAML

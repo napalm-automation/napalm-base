@@ -1,10 +1,24 @@
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import re
 
-def sorted_nicely( l ):
+
+def convert(text):
+    if text.isdigit():
+        return int(text)
+    else:
+        return text
+
+
+def alphanum_key(key):
+    return [convert(c) for c in re.split('([0-9]+)', key)]
+
+
+def sorted_nicely(l):
     """ Sort the given iterable in the way that humans expect."""
-    convert = lambda text: int(text) if text.isdigit() else text
-    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
-    return sorted(l, key = alphanum_key)
+    return sorted(l, key=alphanum_key)
+
 
 def colon_separated_string_to_dict(string, separator=':'):
     '''
@@ -26,18 +40,17 @@ def colon_separated_string_to_dict(string, separator=':'):
 
     '''
     dictionary = dict()
-
     for line in string.splitlines():
         line_data = line.split(separator)
-
         if len(line_data) > 1:
             dictionary[line_data[0].strip()] = ''.join(line_data[1:]).strip()
         elif len(line_data) == 1:
             dictionary[line_data[0].strip()] = None
         else:
-            raise Exception('Something went wrong parsing the colo separated string {}'.format(line))
-
+            raise Exception('Something went wrong parsing the colo separated string {}'
+                            .format(line))
     return dictionary
+
 
 def hyphen_range(string):
     '''
@@ -60,29 +73,37 @@ def hyphen_range(string):
 
     return list_numbers
 
+
 def convert_uptime_string_seconds(uptime):
-    '''
-    Convert uptime strings to seconds. The string can be formatted various ways, eg.
-    1 hour, 56 minutes
-    '''
-    regex_1 = re.compile(r"((?P<weeks>\d+) week(s)?,\s+)?((?P<days>\d+) day(s)?,\s+)?((?P<hours>\d+) hour(s)?,\s+)?((?P<minutes>\d+) minute(s)?)")
-    regex_2 = re.compile(r"((?P<hours>\d+)):((?P<minutes>\d+)):((?P<seconds>\d+))")
+    '''Convert uptime strings to seconds. The string can be formatted various ways.'''
+    regex_list = [
+        # n years, n weeks, n days, n hours, n minutes where each of the fields except minutes
+        # is optional. Additionally, can be either singular or plural
+        (r"((?P<years>\d+) year(s)?,\s+)?((?P<weeks>\d+) week(s)?,\s+)?"
+         r"((?P<days>\d+) day(s)?,\s+)?((?P<hours>\d+) "
+         r"hour(s)?,\s+)?((?P<minutes>\d+) minute(s)?)"),
+        # n days, HH:MM:SS where each field is required (except for days)
+        (r"((?P<days>\d+) day(s)?,\s+)?"
+         r"((?P<hours>\d+)):((?P<minutes>\d+)):((?P<seconds>\d+))"),
+        # 7w6d5h4m3s where each field is optional
+        (r"((?P<weeks>\d+)w)?((?P<days>\d+)d)?((?P<hours>\d+)h)?"
+         r"((?P<minutes>\d+)m)?((?P<seconds>\d+)s)?"),
+    ]
+    regex_list = [re.compile(x) for x in regex_list]
 
-    regex_list = [regex_1, regex_2]
-
-    uptime_dict = dict()
+    uptime_dict = {}
     for regex in regex_list:
-        uptime_dict = regex.search(uptime)
-        if uptime_dict is not None:
-            uptime_dict = uptime_dict.groupdict()
+        match = regex.search(uptime)
+        if match:
+            uptime_dict = match.groupdict()
             break
-        uptime_dict = dict()
 
     uptime_seconds = 0
-
-    for unit, value in uptime_dict.iteritems():
-        if value != None:
-            if unit == 'weeks':
+    for unit, value in uptime_dict.items():
+        if value is not None:
+            if unit == 'years':
+                uptime_seconds += int(value) * 31536000
+            elif unit == 'weeks':
                 uptime_seconds += int(value) * 604800
             elif unit == 'days':
                 uptime_seconds += int(value) * 86400
@@ -95,5 +116,7 @@ def convert_uptime_string_seconds(uptime):
             else:
                 raise Exception('Unrecognized unit "{}" in uptime:{}'.format(unit, uptime))
 
-    return uptime_seconds
+    if not uptime_dict:
+        raise Exception('Unrecognized uptime string:{}'.format(uptime))
 
+    return uptime_seconds

@@ -12,14 +12,20 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+# Python3 support
 from __future__ import print_function
+from __future__ import unicode_literals
 
-from napalm_base import exceptions
 import difflib
-import models
+from napalm_base import exceptions
+from napalm_base.test import models
+from unittest import SkipTest
+
+# text_type is 'unicode' for py2 and 'str' for py3
+from napalm_base.utils.py23_compat import text_type
 
 
-class TestConfigNetworkDriver:
+class TestConfigNetworkDriver(object):
 
     @classmethod
     def tearDownClass(cls):
@@ -38,8 +44,11 @@ class TestConfigNetworkDriver:
             print(line)
 
     def test_replacing_and_committing_config(self):
-        self.device.load_replace_candidate(filename='%s/new_good.conf' % self.vendor)
-        self.device.commit_config()
+        try:
+            self.device.load_replace_candidate(filename='%s/new_good.conf' % self.vendor)
+            self.device.commit_config()
+        except NotImplementedError:
+            raise SkipTest()
 
         # The diff should be empty as the configuration has been committed already
         diff = self.device.compare_config()
@@ -55,6 +64,8 @@ class TestConfigNetworkDriver:
         try:
             self.device.load_replace_candidate(filename='%s/new_typo.conf' % self.vendor)
             self.device.commit_config()
+        except NotImplementedError:
+            raise SkipTest()
         except exceptions.ReplaceConfigException:
             self.device.load_replace_candidate(filename='%s/initial.conf' % self.vendor)
             diff = self.device.compare_config()
@@ -86,7 +97,8 @@ class TestConfigNetworkDriver:
         replace_config_diff = self.device.compare_config()
         self.device.rollback()
 
-        # We try to load again the config. If the rollback was successful new diff should be like the first one
+        # We try to load the config again. If the rollback was successful new diff should be
+        # like the first one
         self.device.load_replace_candidate(filename='%s/new_good.conf' % self.vendor)
         last_diff = self.device.compare_config()
         self.device.discard_config()
@@ -115,11 +127,12 @@ class TestConfigNetworkDriver:
         result = False
         try:
             self.device.load_merge_candidate(filename='%s/merge_typo.conf' % self.vendor)
-            diff = self.device.compare_config()
+            self.device.compare_config()
             self.device.commit_config()
             raise Exception("We shouldn't be here")
         except exceptions.MergeConfigException:
-            # We load the original config as candidate. If the commit failed cleanly the compare_config should be empty
+            # We load the original config as candidate. If the commit failed cleanly the
+            # compare_config should be empty
             self.device.load_replace_candidate(filename='%s/initial.conf' % self.vendor)
             result = self.device.compare_config() == ''
             self.device.discard_config()
@@ -133,7 +146,8 @@ class TestConfigNetworkDriver:
         self.device.discard_config()
         self.assertTrue(diff is not '')
 
-class TestGettersNetworkDriver:
+
+class TestGettersNetworkDriver(object):
 
     @staticmethod
     def _test_model(model, data):
@@ -143,62 +157,99 @@ class TestGettersNetworkDriver:
             print("model_keys: {}\ndata_keys: {}".format(sorted(model.keys()), sorted(data.keys())))
 
         correct_class = True
-        for key, instance_class in model.iteritems():
+        for key, instance_class in model.items():
             same_class = isinstance(data[key], instance_class)
             correct_class = correct_class and same_class
             if not same_class:
                 print("key: {}\nmodel_class: {}\ndata_class: {}".format(
-                                                            key, instance_class, data[key].__class__))
+                    key, instance_class, data[key].__class__))
 
         return correct_class and same_keys
 
+    def test_get_firewall_policies(self):
+        try:
+            policies = self.device.get_firewall_policies()
+        except NotImplementedError:
+            raise SkipTest()
+
+        result = len(policies) > 0
+
+        for policy_name, policy_details in policies.items():
+            for policy_term in policy_details:
+                result = result and self._test_model(models.firewall_policies, policy_term)
+
+        self.assertTrue(result)
+
+    def test_is_alive(self):
+        try:
+            alive = self.device.is_alive()
+        except NotImplementedError:
+            raise SkipTest()
+        result = self._test_model(models.alive, alive)
+        self.assertTrue(result)
+
     def test_get_facts(self):
-        facts = self.device.get_facts()
+        try:
+            facts = self.device.get_facts()
+        except NotImplementedError:
+            raise SkipTest()
         result = self._test_model(models.facts, facts)
         self.assertTrue(result)
 
     def test_get_interfaces(self):
-        get_interfaces = self.device.get_interfaces()
+        try:
+            get_interfaces = self.device.get_interfaces()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_interfaces) > 0
 
-        for interface, interface_data in get_interfaces.iteritems():
+        for interface, interface_data in get_interfaces.items():
             result = result and self._test_model(models.interface, interface_data)
 
         self.assertTrue(result)
 
     def test_get_lldp_neighbors(self):
-        get_lldp_neighbors = self.device.get_lldp_neighbors()
+        try:
+            get_lldp_neighbors = self.device.get_lldp_neighbors()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_lldp_neighbors) > 0
 
-        for interface, neighbor_list in get_lldp_neighbors.iteritems():
+        for interface, neighbor_list in get_lldp_neighbors.items():
             for neighbor in neighbor_list:
                 result = result and self._test_model(models.lldp_neighbors, neighbor)
 
         self.assertTrue(result)
 
     def test_get_interfaces_counters(self):
-        get_interfaces_counters = self.device.get_interfaces_counters()
+        try:
+            get_interfaces_counters = self.device.get_interfaces_counters()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(self.device.get_interfaces_counters()) > 0
 
-        for interface, interface_data in get_interfaces_counters.iteritems():
+        for interface, interface_data in get_interfaces_counters.items():
             result = result and self._test_model(models.interface_counters, interface_data)
 
         self.assertTrue(result)
 
     def test_get_environment(self):
-        environment = self.device.get_environment()
+        try:
+            environment = self.device.get_environment()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(environment) > 0
 
-        for fan, fan_data in environment['fans'].iteritems():
+        for fan, fan_data in environment['fans'].items():
             result = result and self._test_model(models.fan, fan_data)
 
-        for power, power_data in environment['power'].iteritems():
+        for power, power_data in environment['power'].items():
             result = result and self._test_model(models.power, power_data)
 
-        for temperature, temperature_data in environment['temperature'].iteritems():
+        for temperature, temperature_data in environment['temperature'].items():
             result = result and self._test_model(models.temperature, temperature_data)
 
-        for cpu, cpu_data in environment['cpu'].iteritems():
+        for cpu, cpu_data in environment['cpu'].items():
             result = result and self._test_model(models.cpu, cpu_data)
 
         result = result and self._test_model(models.memory, environment['memory'])
@@ -206,39 +257,46 @@ class TestGettersNetworkDriver:
         self.assertTrue(result)
 
     def test_get_bgp_neighbors(self):
-        get_bgp_neighbors = self.device.get_bgp_neighbors()
+        try:
+            get_bgp_neighbors = self.device.get_bgp_neighbors()
+        except NotImplementedError:
+            raise SkipTest()
         result = 'global' in get_bgp_neighbors.keys()
 
         if not result:
             print('global is not part of the returned vrfs')
         else:
-            for vrf, vrf_data in get_bgp_neighbors.iteritems():
-                result = result and isinstance(vrf_data['router_id'], unicode)
+            for vrf, vrf_data in get_bgp_neighbors.items():
+                result = result and isinstance(vrf_data['router_id'], text_type)
                 if not result:
-                    print('router_id is not unicode')
+                    print('router_id is not {}'.format(text_type))
 
-                for peer, peer_data in vrf_data['peers'].iteritems():
+                for peer, peer_data in vrf_data['peers'].items():
                     result = result and self._test_model(models.peer, peer_data)
 
-                    for af, af_data in peer_data['address_family'].iteritems():
+                    for af, af_data in peer_data['address_family'].items():
                         result = result and self._test_model(models.af, af_data)
 
             self.assertTrue(result)
 
     def test_get_lldp_neighbors_detail(self):
-
-        get_lldp_neighbors_detail = self.device.get_lldp_neighbors_detail()
+        try:
+            get_lldp_neighbors_detail = self.device.get_lldp_neighbors_detail()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_lldp_neighbors_detail) > 0
 
-        for interface, neighbor_list in get_lldp_neighbors_detail.iteritems():
+        for interface, neighbor_list in get_lldp_neighbors_detail.items():
             for neighbor in neighbor_list:
                 result = result and self._test_model(models.lldp_neighbors_detail, neighbor)
 
         self.assertTrue(result)
 
     def test_get_bgp_config(self):
-
-        get_bgp_config = self.device.get_bgp_config()
+        try:
+            get_bgp_config = self.device.get_bgp_config()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_bgp_config) > 0
 
         for bgp_group in get_bgp_config.values():
@@ -249,20 +307,27 @@ class TestGettersNetworkDriver:
         self.assertTrue(result)
 
     def test_get_bgp_neighbors_detail(self):
-
-        get_bgp_neighbors_detail = self.device.get_bgp_neighbors_detail()
+        try:
+            get_bgp_neighbors_detail = self.device.get_bgp_neighbors_detail()
+        except NotImplementedError:
+            raise SkipTest()
 
         result = len(get_bgp_neighbors_detail) > 0
 
-        for remote_as, neighbor_list in get_bgp_neighbors_detail.iteritems():
-            for neighbor in neighbor_list:
-                result = result and self._test_model(models.peer_details, neighbor)
+        for vrf, vrf_ases in get_bgp_neighbors_detail.items():
+            result = result and isinstance(vrf, text_type)
+            for remote_as, neighbor_list in vrf_ases.items():
+                result = result and isinstance(remote_as, int)
+                for neighbor in neighbor_list:
+                    result = result and self._test_model(models.peer_details, neighbor)
 
         self.assertTrue(result)
 
     def test_get_arp_table(self):
-
-        get_arp_table = self.device.get_arp_table()
+        try:
+            get_arp_table = self.device.get_arp_table()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_arp_table) > 0
 
         for arp_entry in get_arp_table:
@@ -271,19 +336,37 @@ class TestGettersNetworkDriver:
         self.assertTrue(result)
 
     def test_get_ntp_peers(self):
-
-        get_ntp_peers = self.device.get_ntp_peers()
+        try:
+            get_ntp_peers = self.device.get_ntp_peers()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_ntp_peers) > 0
 
-        for peer, peer_details in get_ntp_peers.iteritems():
-            result = result and isinstance(peer, unicode)
+        for peer, peer_details in get_ntp_peers.items():
+            result = result and isinstance(peer, text_type)
             result = result and self._test_model(models.ntp_peer, peer_details)
 
         self.assertTrue(result)
 
-    def test_get_ntp_stats(self):
+    def test_get_ntp_servers(self):
+        try:
+            get_ntp_servers = self.device.get_ntp_servers()
+        except NotImplementedError:
+            raise SkipTest()
 
-        get_ntp_stats = self.device.get_ntp_stats()
+        result = len(get_ntp_servers) > 0
+
+        for server, server_details in get_ntp_servers.items():
+            result = result and isinstance(server, text_type)
+            result = result and self._test_model(models.ntp_server, server_details)
+
+        self.assertTrue(result)
+
+    def test_get_ntp_stats(self):
+        try:
+            get_ntp_stats = self.device.get_ntp_stats()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_ntp_stats) > 0
 
         for ntp_peer_details in get_ntp_stats:
@@ -292,24 +375,27 @@ class TestGettersNetworkDriver:
         self.assertTrue(result)
 
     def test_get_interfaces_ip(self):
-
-        get_interfaces_ip = self.device.get_interfaces_ip()
-
+        try:
+            get_interfaces_ip = self.device.get_interfaces_ip()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_interfaces_ip) > 0
 
-        for interface, interface_details in get_interfaces_ip.iteritems():
+        for interface, interface_details in get_interfaces_ip.items():
             ipv4 = interface_details.get('ipv4', {})
             ipv6 = interface_details.get('ipv6', {})
-            for ip, ip_details in ipv4.iteritems():
+            for ip, ip_details in ipv4.items():
                 result = result and self._test_model(models.interfaces_ip, ip_details)
-            for ip, ip_details in ipv6.iteritems():
+            for ip, ip_details in ipv6.items():
                 result = result and self._test_model(models.interfaces_ip, ip_details)
 
         self.assertTrue(result)
 
     def test_get_mac_address_table(self):
-        get_mac_address_table = self.device.get_mac_address_table()
-
+        try:
+            get_mac_address_table = self.device.get_mac_address_table()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_mac_address_table) > 0
 
         for mac_table_entry in get_mac_address_table:
@@ -318,58 +404,69 @@ class TestGettersNetworkDriver:
         self.assertTrue(result)
 
     def test_get_route_to(self):
-
-        destination  = '1.0.4.0/24'
+        destination = '1.0.4.0/24'
         protocol = 'bgp'
-        get_route_to = self.device.get_route_to(destination=destination, protocol=protocol)
+        try:
+            get_route_to = self.device.get_route_to(destination=destination, protocol=protocol)
+        except NotImplementedError:
+            raise SkipTest()
 
         result = len(get_route_to) > 0
 
-        for prefix, routes in get_route_to.iteritems():
+        for prefix, routes in get_route_to.items():
             for route in routes:
                 result = result and self._test_model(models.route, route)
-
         self.assertTrue(result)
 
     def test_get_snmp_information(self):
+        try:
+            get_snmp_information = self.device.get_snmp_information()
+        except NotImplementedError:
+            raise SkipTest()
 
-        get_snmp_information = self.device.get_snmp_information()
         result = len(get_snmp_information) > 0
 
         for snmp_entry in get_snmp_information:
             result = result and self._test_model(models.snmp, get_snmp_information)
 
-        for community, community_data in get_snmp_information['community'].iteritems():
+        for community, community_data in get_snmp_information['community'].items():
             result = result and self._test_model(models.snmp_community, community_data)
 
         self.assertTrue(result)
 
     def test_get_probes_config(self):
+        try:
+            get_probes_config = self.device.get_probes_config()
+        except NotImplementedError:
+            raise SkipTest()
 
-        get_probes_config = self.device.get_probes_config()
         result = len(get_probes_config) > 0
 
-        for probe_name, probe_tests in get_probes_config.iteritems():
-            for test_name, test_config in probe_tests.iteritems():
+        for probe_name, probe_tests in get_probes_config.items():
+            for test_name, test_config in probe_tests.items():
                 result = result and self._test_model(models.probe_test, test_config)
 
         self.assertTrue(result)
 
     def test_get_probes_results(self):
-
-        get_probes_results = self.device.get_probes_results()
+        try:
+            get_probes_results = self.device.get_probes_results()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_probes_results) > 0
 
-        for probe_name, probe_tests in get_probes_results.iteritems():
-            for test_name, test_results in probe_tests.iteritems():
+        for probe_name, probe_tests in get_probes_results.items():
+            for test_name, test_results in probe_tests.items():
                 result = result and self._test_model(models.probe_test_results, test_results)
 
         self.assertTrue(result)
 
     def test_ping(self):
-
         destination = '8.8.8.8'
-        get_ping = self.device.ping(destination)
+        try:
+            get_ping = self.device.ping(destination)
+        except NotImplementedError:
+            raise SkipTest()
         result = isinstance(get_ping.get('success'), dict)
         ping_results = get_ping.get('success', {})
 
@@ -383,23 +480,92 @@ class TestGettersNetworkDriver:
     def test_traceroute(self):
 
         destination = '8.8.8.8'
-        get_traceroute = self.device.traceroute(destination)
+        try:
+            get_traceroute = self.device.traceroute(destination)
+        except NotImplementedError:
+            raise SkipTest()
         result = isinstance(get_traceroute.get('success'), dict)
         traceroute_results = get_traceroute.get('success', {})
 
-        for hope_id, hop_result in traceroute_results.iteritems():
-            for probe_id, probe_result in hop_result.get('probes', {}).iteritems():
+        for hope_id, hop_result in traceroute_results.items():
+            for probe_id, probe_result in hop_result.get('probes', {}).items():
                 result = result and self._test_model(models.traceroute, probe_result)
 
         self.assertTrue(result)
 
     def test_get_users(self):
 
-        get_users = self.device.get_users()
+        try:
+            get_users = self.device.get_users()
+        except NotImplementedError:
+            raise SkipTest()
         result = len(get_users)
 
-        for user, user_details in get_users.iteritems():
+        for user, user_details in get_users.items():
             result = result and self._test_model(models.users, user_details)
             result = result and (0 <= user_details.get('level') <= 15)
+
+        self.assertTrue(result)
+
+    def test_get_optics(self):
+
+        try:
+            get_optics = self.device.get_optics()
+        except NotImplementedError:
+            raise SkipTest()
+
+        assert isinstance(get_optics, dict)
+
+        for iface, iface_data in get_optics.items():
+            assert isinstance(iface, text_type)
+            for channel in iface_data['physical_channels']['channel']:
+                assert len(channel) == 2
+                assert isinstance(channel['index'], int)
+                for field in ['input_power', 'output_power',
+                              'laser_bias_current']:
+
+                    assert len(channel['state'][field]) == 4
+                    assert isinstance(channel['state'][field]['instant'],
+                                      float)
+                    assert isinstance(channel['state'][field]['avg'], float)
+                    assert isinstance(channel['state'][field]['min'], float)
+                    assert isinstance(channel['state'][field]['max'], float)
+
+    def test_get_config(self):
+        """Test get_config method."""
+        try:
+            get_config = self.device.get_config()
+        except NotImplementedError:
+            raise SkipTest()
+
+        assert isinstance(get_config, dict)
+        assert self._test_model(models.config, get_config)
+
+    def test_get_config_filtered(self):
+        """Test get_config method."""
+        for config in ['running', 'startup', 'candidate']:
+            try:
+                get_config = self.device.get_config(retrieve=config)
+            except NotImplementedError:
+                raise SkipTest()
+
+            assert get_config['candidate'] == "" if config != "candidate" else True
+            assert get_config['startup'] == "" if config != "startup" else True
+            assert get_config['running'] == "" if config != "running" else True
+
+    def test_get_network_instances(self):
+        """Test get_network_instances method."""
+        try:
+            get_network_instances = self.device.get_network_instances()
+        except NotImplementedError:
+            raise SkipTest()
+
+        result = isinstance(get_network_instances, dict)
+        for network_instance_name, network_instance in get_network_instances.items():
+            result = result and self._test_model(models.network_instance, network_instance)
+            result = result and \
+                self._test_model(models.network_instance_state, network_instance['state'])
+            result = result and \
+                self._test_model(models.network_instance_interfaces, network_instance['interfaces'])
 
         self.assertTrue(result)
