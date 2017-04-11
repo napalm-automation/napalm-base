@@ -197,7 +197,8 @@ ntp_stats = {
 }
 
 interfaces_ip = {
-    'prefix_length': int
+    'prefix_length': int,
+    'primary_key': bool
 }
 
 mac_address_table = {
