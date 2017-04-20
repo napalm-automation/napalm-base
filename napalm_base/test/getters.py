@@ -11,6 +11,7 @@ except ImportError:
     from itertools import zip_longest
 
 import inspect
+from inspect import ArgSpec
 import json
 
 import pytest
@@ -124,9 +125,6 @@ class BaseTestGetters(object):
         """Test that all methods have the same signature."""
 
         # Method signatures that are migrating from old to new state (temporary state)
-        transition = True
-        if transition:
-            from inspect import ArgSpec
         # napalm-base must match new; napalm-driver must match old (if not identical to base)
         TRANSITION_SIGNATURES = {
             'commit_config': {
