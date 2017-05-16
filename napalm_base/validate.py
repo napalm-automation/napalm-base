@@ -122,10 +122,11 @@ def _compare_getter(src, dst):
     else:
         if isinstance(src, py23_compat.string_types):
             if src.startswith('<') or src.startswith('>'):
-                m = compare_numeric(src, dst)
+                cmp_result = compare_numeric(src, dst)
+                return cmp_result
             else:
                 m = re.search(src, py23_compat.text_type(dst))
-            return m is not None
+                return m is not None
         elif(type(src) == type(dst) == list):
             pairs = zip(src, dst)
             diff_lists = [[(k, x[k], y[k])
