@@ -121,7 +121,7 @@ def _compare_getter(src, dst):
         return _compare_getter_dict(src, dst, mode)
     else:
         if isinstance(src, py23_compat.string_types):
-            if (src.startswith('<') or src.startswith('>') or src.startswith('=')):
+            if src.startswith('<') or src.startswith('>'):
                 m = compare_numeric(src, dst)
             else:
                 m = re.search(src, py23_compat.text_type(dst))
@@ -136,9 +136,9 @@ def _compare_getter(src, dst):
             return src == dst
 
 def compare_numeric(src_num, dst_num):
-    """Compare numerical values. You can use '<%f','>%f'and'=%f'."""
-    complies = eval(dst_num+src_num)
-    if isinstance(complies, bool):
+    """Compare numerical values. You can use '<%d','>%d'."""
+    complies = eval(str(dst_num)+src_num)
+    if not isinstance(complies, bool):
         return False
     return complies
 

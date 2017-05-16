@@ -47,3 +47,10 @@ get_lldp_neighbors:
   present:
     ge-1/0/2: {complies: true, nested: false}
     ge-1/0/3: {complies: true, nested: False}
+get_environment:
+  complies: true
+  extra: []
+  missing: []
+  present:
+    cpu: {complies: true, nested: true}
+    memory: {complies: true, nested: true}

@@ -68,3 +68,10 @@
     ge-1/0/3:
       - hostname: "border2.private.lon2"
         port: "519"
+
+- get_environment:
+    memory:
+      available_ram: ">15.0"
+    cpu:
+      0/RP0/CPU0:
+        "%usage": "<10.0"
