@@ -136,12 +136,14 @@ def _compare_getter(src, dst):
         else:
             return src == dst
 
+
 def compare_numeric(src_num, dst_num):
     """Compare numerical values. You can use '<%d','>%d'."""
     complies = eval(str(dst_num)+src_num)
     if not isinstance(complies, bool):
         return False
     return complies
+
 
 def empty_tree(input_list):
     """Recursively iterate through values in nested lists."""
