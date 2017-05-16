@@ -121,7 +121,10 @@ def _compare_getter(src, dst):
         return _compare_getter_dict(src, dst, mode)
     else:
         if isinstance(src, py23_compat.string_types):
-            m = re.search(src, py23_compat.text_type(dst))
+            if (src.startswith('<') or src.startswith('>') or src.startswith('=')):
+                m = compare_numeric(src, dst)
+            else:
+                m = re.search(src, py23_compat.text_type(dst))
             return m is not None
         elif(type(src) == type(dst) == list):
             pairs = zip(src, dst)
@@ -132,6 +135,12 @@ def _compare_getter(src, dst):
         else:
             return src == dst
 
+def compare_numeric(src_num, dst_num):
+    """Compare numerical values. You can use '<%f','>%f'and'=%f'."""
+    complies = eval(dst_num+src_num)
+    if isinstance(complies, bool):
+        return False
+    return complies
 
 def empty_tree(input_list):
     """Recursively iterate through values in nested lists."""
