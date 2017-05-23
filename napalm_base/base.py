@@ -692,7 +692,7 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def get_arp_table(self):
+    def get_arp_table(self, ip=None, mac=None, interface=None):
 
         """
         Returns a list of dictionaries having the following set of keys:
@@ -700,6 +700,10 @@ class NetworkDriver(object):
             * mac (string)
             * ip (string)
             * age (float)
+
+        :param ip: Retuns the entries for a specific ip address.
+        :param mac: Retuns the entries for a specific mac address.
+        :param interface: Retuns the entries for a specific interface.
 
         Example::
 
@@ -851,7 +855,7 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def get_mac_address_table(self):
+    def get_mac_address_table(self, mac=None, interface=None, vlan=None):
 
         """
         Returns a lists of dictionaries. Each dictionary represents an entry in the MAC Address
@@ -863,6 +867,10 @@ class NetworkDriver(object):
             * static (boolean)
             * moves (int)
             * last_move (float)
+
+        :param mac: Retuns the entries for a specific mac address.
+        :param interface: Retuns the entries for a specific interface.
+        :param vlan: Retuns the entries for a specific vlan.
 
         However, please note that not all vendors provide all these details.
         E.g.: field last_move is not available on JUNOS devices etc.
