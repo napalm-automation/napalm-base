@@ -17,33 +17,62 @@ from netaddr import IPAddress
 
 # local modules
 import napalm_base.exceptions
+import napalm_base.constants as C
 from napalm_base.utils.jinja_filters import CustomJinjaFilters
 from napalm_base.utils import py23_compat
 
-
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # helper classes -- will not be exported
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+
 class _MACFormat(mac_unix):
     pass
 
 
 _MACFormat.word_fmt = '%.2X'
 
-
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # callable helpers
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+
 def load_template(cls, template_name, template_source=None, template_path=None,
                   openconfig=False, **template_vars):
+    config_format = 'text'
     try:
         if isinstance(template_source, py23_compat.string_types):
             template = jinja2.Template(template_source)
         else:
-            current_dir = os.path.dirname(os.path.abspath(sys.modules[cls.__module__].__file__))
+            driver_module_name = cls.__module__
+            driver_module = __import__(driver_module_name)
+            try:
+                # import driver specific supported formats
+                supported_cfg_fmt = driver_module.constants.SUPPORTED_CONFIG_FORMATS
+            except AttributeError:
+                # otherwise take napalm-base constants only
+                supported_cfg_fmt = C.SUPPORTED_CONFIG_FORMATS
+            template_name, file_extension = os.path.splitext(template_name)
+            file_extension = file_extension.replace('.', '').lower()
+            # if file_extension in ('j2', 'jinja'):
+            #     pass
+            # implicit extension, does not overwrite => see issue #143, point 2
+            if not file_extension:
+                # as of today, if specified
+                file_extension = 'j2'
+            if file_extension and file_extension not in supported_cfg_fmt:
+                # format is not supported => rewrites to j2
+                file_extension = 'j2'  # default
+            elif file_extension and file_extension in supported_cfg_fmt:
+                # supported format, does not override extenion
+                # but changes the config format
+                config_format = file_extension
+            template_name = '{base}{ext}'.format(base=template_name,
+                                                 ext='.'+file_extension if file_extension else '')
+            current_dir = os.path.dirname(os.path.abspath(sys.modules[driver_module_name].__file__))
             if (isinstance(template_path, py23_compat.string_types) and
                     os.path.isdir(template_path) and os.path.isabs(template_path)):
-                current_dir = os.path.join(template_path, cls.__module__.split('.')[-1])
+                current_dir = os.path.join(template_path, driver_module_name.split('.')[-1])
                 # append driver name at the end of the custom path
 
             if openconfig:
@@ -65,13 +94,11 @@ def load_template(cls, template_name, template_source=None, template_path=None,
             for filter_name, filter_function in CustomJinjaFilters.filters().items():
                 environment.filters[filter_name] = filter_function
 
-            template = environment.get_template('{template_name}.j2'.format(
-                template_name=template_name
-            ))
+            template = environment.get_template(template_name)
         configuration = template.render(**template_vars)
     except jinja2.exceptions.TemplateNotFound:
         raise napalm_base.exceptions.TemplateNotImplemented(
-            "Config template {template_name}.j2 is not defined under {path}".format(
+            "Config template {template_name} is not defined under {path}".format(
                 template_name=template_name,
                 path=template_dir_path
             )
@@ -83,7 +110,7 @@ def load_template(cls, template_name, template_source=None, template_path=None,
                 error=jinjaerr.message
             )
         )
-    return cls.load_merge_candidate(config=configuration)
+    return cls.load_merge_candidate(config=configuration, format=config_format)
 
 
 def textfsm_extractor(cls, template_name, raw_text):
