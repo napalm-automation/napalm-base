@@ -10,3 +10,4 @@ napalm-panos
 napalm-pluribus
 napalm-ros
 napalm-vyos
+napalm-logs
