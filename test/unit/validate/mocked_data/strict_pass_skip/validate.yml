@@ -2,15 +2,21 @@
 - get_facts:
     os_version: 7.0\(3\)I2\(2d\)
     interface_list:
-        list:
-          - Vlan5
-          - Vlan100
+        _mode: strict
+        list: [Vlan5,Vlan100, Vlan40, Vlan41, GigabitEthernet0/1, GigabitEthernet0/2, GigabitEthernet0/3,
+               GigabitEthernet0/4, GigabitEthernet0/5, GigabitEthernet0/6, GigabitEthernet0/7,
+               GigabitEthernet0/8, Port-channel1]
     hostname: n9k2
 
+- method_not_implemented:
+      something: asd
+
 - get_bgp_neighbors:
+    _name: "check_bgp_neighbors_have_prefixes"
     default:
       router_id: 192.0.2.2
       peers:
+        _mode: strict
         192.0.2.3:
           is_enabled: false
         192.0.2.2:
@@ -26,19 +32,3 @@
       ipv4:
         192.0.2.1:
           prefix_length: 30
-
-- get_route_to:
-    _kwargs:
-      destination: 185.155.180.192/26
-    "10.155.180.192/26":
-      list:
-       - next_hop: 10.155.180.22
-         outgoing_interface: "irb.0"
-         protocol: "BGP"
-
-- get_environment:
-    memory:
-      available_ram: "<20.0"
-    cpu:
-      0/RP0/CPU0:
-        "%usage": "<20.0"

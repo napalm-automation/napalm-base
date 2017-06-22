@@ -1,5 +1,6 @@
 ---
 complies: true
+skipped: []
 get_bgp_neighbors:
   complies: true
   extra: []
@@ -14,9 +15,35 @@ get_facts:
     hostname: {complies: true, nested: false}
     interface_list: {complies: true, nested: true}
     os_version: {complies: true, nested: false}
+get_route_to:
+  complies: true
+  extra: []
+  missing: []
+  present:
+    10.155.180.192/26: {complies: true, nested: true}
 get_interfaces_ip:
   complies: true
   extra: []
   missing: []
   present:
     Ethernet2/1: {complies: true, nested: true}
+ping1:
+  complies: true
+  extra: []
+  missing: []
+  present:
+    success: {complies: true, nested: true}
+ping2:
+  complies: true
+  extra: []
+  missing: []
+  present:
+    success: {complies: true, nested: true}
+
+get_lldp_neighbors:
+  complies: true
+  extra: []
+  missing: []
+  present:
+    ge-1/0/2: {complies: true, nested: false}
+    ge-1/0/3: {complies: true, nested: False}

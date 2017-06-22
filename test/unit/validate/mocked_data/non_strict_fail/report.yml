@@ -1,5 +1,6 @@
 ---
 complies: false
+skipped: []
 get_bgp_neighbors:
   complies: false
   extra: []
@@ -72,3 +73,56 @@ get_interfaces_ip:
   missing: []
   present:
     Ethernet2/1: {complies: true, nested: true}
+get_route_to:
+  complies: false
+  extra: []
+  missing: []
+  present:
+    10.155.180.192/26:
+      complies: false
+      diff:
+        complies: false
+        extra: []
+        missing:
+        - {next_hop: 10.155.180.22, outgoing_interface: irb.0, protocol: OSPF}
+        present: []
+      nested: true
+skipped: []
+
+get_environment:
+  complies: false
+  extra: []
+  missing: []
+  present:
+    cpu: 
+      complies: False
+      diff: 
+        complies: False
+        extra: []
+        missing: []
+        present: 
+          0/RP0/CPU0:
+            complies: False
+            diff: 
+              complies: False
+              extra: []
+              missing: []
+              present: 
+                '%usage': 
+                  actual_value: 100.0
+                  complies: False
+                  nested: False
+            nested: True
+      nested: True
+    memory: 
+      complies: False
+      diff: 
+        complies: False
+        extra: []
+        missing: []
+        present: 
+          available_ram: 
+            actual_value: 90.0
+            complies: False
+            nested: False
+      nested: True

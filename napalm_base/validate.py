@@ -8,6 +8,10 @@ from __future__ import unicode_literals
 import yaml
 
 from napalm_base.exceptions import ValidationException
+from napalm_base.utils import py23_compat
+
+import copy
+import re
 
 
 def _get_validation_file(validation_file):
@@ -36,13 +40,22 @@ def _compare_getter_list(src, dst, mode):
     result = {"complies": True, "present": [], "missing": [], "extra": []}
     for src_element in src:
         found = False
-        for index, dst_element in enumerate(dst):
-            intermediate_match = _compare_getter(src_element, dst_element)
-            if intermediate_match:
-                found = True
-                result["present"].append(src_element)
-                dst.pop(index)
+
+        i = 0
+        while True:
+            try:
+                intermediate_match = _compare_getter(src_element, dst[i])
+                if isinstance(intermediate_match, dict) and intermediate_match["complies"] or \
+                   not isinstance(intermediate_match, dict) and intermediate_match:
+                    found = True
+                    result["present"].append(src_element)
+                    dst.pop(i)
+                    break
+                else:
+                    i += 1
+            except IndexError:
                 break
+
         if not found:
             result["complies"] = False
             result["missing"].append(src_element)
@@ -56,6 +69,7 @@ def _compare_getter_list(src, dst, mode):
 
 def _compare_getter_dict(src, dst, mode):
     result = {"complies": True, "present": {}, "missing": [], "extra": []}
+    dst = copy.deepcopy(dst)  # Otherwise we are going to modify a "live" object
 
     for key, src_element in src.items():
         try:
@@ -93,8 +107,8 @@ def _compare_getter_dict(src, dst, mode):
 
 
 def _compare_getter(src, dst):
-    if isinstance(src, str):
-        src = u'{}'.format(src)
+    if isinstance(src, py23_compat.string_types):
+        src = py23_compat.text_type(src)
 
     if isinstance(src, dict):
         mode = _mode(src.pop('_mode', ''))
@@ -106,20 +120,59 @@ def _compare_getter(src, dst):
             return _compare_getter_list(src['list'], dst, mode)
         return _compare_getter_dict(src, dst, mode)
     else:
-        return src == dst
+        if isinstance(src, py23_compat.string_types):
+            if src.startswith('<') or src.startswith('>'):
+                cmp_result = compare_numeric(src, dst)
+                return cmp_result
+            else:
+                m = re.search(src, py23_compat.text_type(dst))
+                return m is not None
+        elif(type(src) == type(dst) == list):
+            pairs = zip(src, dst)
+            diff_lists = [[(k, x[k], y[k])
+                          for k in x if not re.search(x[k], y[k])]
+                          for x, y in pairs if x != y]
+            return empty_tree(diff_lists)
+        else:
+            return src == dst
+
+
+def compare_numeric(src_num, dst_num):
+    """Compare numerical values. You can use '<%d','>%d'."""
+    complies = eval(str(dst_num)+src_num)
+    if not isinstance(complies, bool):
+        return False
+    return complies
+
+
+def empty_tree(input_list):
+    """Recursively iterate through values in nested lists."""
+    for item in input_list:
+        if not isinstance(item, list) or not empty_tree(item):
+            return False
+    return True
 
 
 def compliance_report(cls, validation_file=None):
     report = {}
     validation_source = _get_validation_file(validation_file)
 
-    for getter, expected_results in validation_source.items():
-        if getter == "get_config":
-            # TBD
-            pass
-        else:
-            actual_results = getattr(cls, getter)()
-            report[getter] = _compare_getter(expected_results, actual_results)
+    for validation_check in validation_source:
+        for getter, expected_results in validation_check.items():
+            if getter == "get_config":
+                # TBD
+                pass
+            else:
+                key = expected_results.pop("_name", "") or getter
 
-    report["complies"] = all([e["complies"] for e in report.values()])
+                try:
+                    kwargs = expected_results.pop('_kwargs', {})
+                    actual_results = getattr(cls, getter)(**kwargs)
+                    report[key] = _compare_getter(expected_results, actual_results)
+                except NotImplementedError:
+                    report[key] = {"skipped": True, "reason": "NotImplemented"}
+
+    complies = all([e.get("complies", True) for e in report.values()])
+    report["skipped"] = [k for k, v in report.items() if v.get("skipped", False)]
+    report["complies"] = complies
     return report

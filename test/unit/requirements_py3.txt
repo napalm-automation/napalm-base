@@ -1,3 +1,0 @@
-ddt
-lxml
-napalm-ios

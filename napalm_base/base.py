@@ -49,7 +49,7 @@ class NetworkDriver(object):
     def __enter__(self):
         try:
             self.open()
-        except:
+        except:  # noqa
             exc_info = sys.exc_info()
             self.__raise_clean_exception(exc_info[0], exc_info[1], exc_info[2])
         return self
@@ -58,6 +58,18 @@ class NetworkDriver(object):
         self.close()
         if exc_type is not None:
             self.__raise_clean_exception(exc_type, exc_value, exc_traceback)
+
+    def __del__(self):
+        """
+        This method is used to cleanup when the program is terminated suddenly.
+        We need to make sure the connection is closed properly and the configuration DB
+        is released (unlocked).
+        """
+        try:
+            if self.is_alive()["is_alive"]:
+                self.close()
+        except NotImplementedError:
+            pass
 
     @staticmethod
     def __raise_clean_exception(exc_type, exc_value, exc_traceback):
@@ -231,37 +243,37 @@ class NetworkDriver(object):
                 {
                 'is_up': False,
                 'is_enabled': False,
-                'description': u'',
+                'description': '',
                 'last_flapped': -1,
                 'speed': 1000,
-                'mac_address': u'dead:beef:dead',
+                'mac_address': 'FA:16:3E:57:33:61',
                 },
             u'Ethernet1':
                 {
                 'is_up': True,
                 'is_enabled': True,
-                'description': u'foo',
+                'description': 'foo',
                 'last_flapped': 1429978575.1554043,
                 'speed': 1000,
-                'mac_address': u'beef:dead:beef',
+                'mac_address': 'FA:16:3E:57:33:62',
                 },
             u'Ethernet2':
                 {
                 'is_up': True,
                 'is_enabled': True,
-                'description': u'bla',
+                'description': 'bla',
                 'last_flapped': 1429978575.1555667,
                 'speed': 1000,
-                'mac_address': u'beef:beef:beef',
+                'mac_address': 'FA:16:3E:57:33:63',
                 },
             u'Ethernet3':
                 {
                 'is_up': False,
                 'is_enabled': True,
-                'description': u'bar',
+                'description': 'bar',
                 'last_flapped': -1,
                 'speed': 1000,
-                'mac_address': u'dead:dead:dead',
+                'mac_address': 'FA:16:3E:57:33:64',
                 }
             }
         """
@@ -333,6 +345,40 @@ class NetworkDriver(object):
                 * received_prefixes (int)
                 * accepted_prefixes (int)
                 * sent_prefixes (int)
+
+            Note, if is_up is False and uptime has a positive value then this indicates the
+            uptime of the last active BGP session.
+
+            Example response:
+            {
+              "global": {
+                "router_id": "10.0.1.1",
+                "peers": {
+                  "10.0.0.2": {
+                    "local_as": 65000,
+                    "remote_as": 65000,
+                    "remote_id": "10.0.1.2",
+                    "is_up": True,
+                    "is_enabled": True,
+                    "description": "internal-2",
+                    "uptime": 4838400,
+                    "address_family": {
+                      "ipv4": {
+                        "sent_prefixes": 637213,
+                        "accepted_prefixes": 3142,
+                        "received_prefixes": 3142
+                      },
+                      "ipv6": {
+                        "sent_prefixes": 36714,
+                        "accepted_prefixes": 148,
+                        "received_prefixes": 148
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
         """
         raise NotImplementedError
 
@@ -471,7 +517,7 @@ class NetworkDriver(object):
         :param neighbor: Returns the configuration of a specific BGP neighbor.
 
         Main dictionary keys represent the group name and the values represent a dictionary having
-        the following keys:
+        the keys below. Neighbors which aren't members of a group will be stored in a key named "_":
             * type (string)
             * description (string)
             * apply_groups (string list)
@@ -694,13 +740,13 @@ class NetworkDriver(object):
             [
                 {
                     'interface' : 'MgmtEth0/RSP0/CPU0/0',
-                    'mac'       : '5c:5e:ab:da:3c:f0',
+                    'mac'       : '5C:5E:AB:DA:3C:F0',
                     'ip'        : '172.17.17.1',
                     'age'       : 1454496274.84
                 },
                 {
                     'interface' : 'MgmtEth0/RSP0/CPU0/0',
-                    'mac'       : '66:0e:94:96:e0:ff',
+                    'mac'       : '5C:5E:AB:DA:3C:FF',
                     'ip'        : '172.17.17.2',
                     'age'       : 1435641582.49
                 }
@@ -859,7 +905,7 @@ class NetworkDriver(object):
 
             [
                 {
-                    'mac'       : '00:1c:58:29:4a:71',
+                    'mac'       : '00:1C:58:29:4A:71',
                     'interface' : 'Ethernet47',
                     'vlan'      : 100,
                     'static'    : False,
@@ -868,7 +914,7 @@ class NetworkDriver(object):
                     'last_move' : 1454417742.58
                 },
                 {
-                    'mac'       : '8c:60:4f:58:e1:c1',
+                    'mac'       : '00:1C:58:29:4A:C1',
                     'interface' : 'xe-1/0/1',
                     'vlan'       : 100,
                     'static'    : False,
@@ -877,7 +923,7 @@ class NetworkDriver(object):
                     'last_move' : 1453191948.11
                 },
                 {
-                    'mac'       : 'f4:b5:2f:56:72:01',
+                    'mac'       : '00:1C:58:29:4A:C2',
                     'interface' : 'ae7.900',
                     'vlan'      : 900,
                     'static'    : False,
@@ -1111,7 +1157,7 @@ class NetworkDriver(object):
         raise NotImplementedError
 
     def ping(self, destination, source=c.PING_SOURCE, ttl=c.PING_TTL, timeout=c.PING_TIMEOUT,
-             size=c.PING_SIZE, count=c.PING_COUNT):
+             size=c.PING_SIZE, count=c.PING_COUNT, vrf=c.PING_VRF):
         """
         Executes ping on the device and returns a dictionary with the result
 
@@ -1178,7 +1224,8 @@ class NetworkDriver(object):
                    destination,
                    source=c.TRACEROUTE_SOURCE,
                    ttl=c.TRACEROUTE_TTL,
-                   timeout=c.TRACEROUTE_TIMEOUT):
+                   timeout=c.TRACEROUTE_TIMEOUT,
+                   vrf=c.TRACEROUTE_VRF):
         """
         Executes traceroute on the device and returns a dictionary with the result.
 
