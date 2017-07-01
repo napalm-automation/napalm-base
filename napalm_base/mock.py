@@ -22,6 +22,7 @@ import napalm_base.exceptions
 import inspect
 import json
 import os
+import re
 
 
 from pydoc import locate
@@ -36,7 +37,7 @@ def raise_exception(result):
 
 
 def is_mocked_method(method):
-    mocked_methods = ["cli", ]
+    mocked_methods = []
     if method.startswith("get_") or method in mocked_methods:
         return True
     return False
@@ -105,6 +106,18 @@ class MockDriver(NetworkDriver):
 
     def is_alive(self):
         return {"is_alive": self.opened}
+
+    def cli(self, commands):
+        count = self._count_calls("cli")
+        result = {}
+        regexp = re.compile('[^a-zA-Z0-9]+')
+        for i, c in enumerate(commands):
+            sanitized = re.sub(regexp, '_', c)
+            name = "cli.{}.{}".format(count, sanitized)
+            filename = "{}.{}".format(os.path.join(self.path, name), i)
+            with open(filename, 'r') as f:
+                result[c] = f.read()
+        return result
 
     def __getattribute__(self, name):
         if is_mocked_method(name):

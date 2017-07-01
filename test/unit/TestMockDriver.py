@@ -104,3 +104,10 @@ class TestMockDriver():
             assert "Couldn't resolve exception NoIdeaException" in excinfo.value
 
         d.close()
+
+    def test_cli(self):
+        d = driver("blah", "bleh", "blih", optional_args=optional_args)
+        d.open()
+        result = d.cli(["a_command", "b_command"])
+        assert result == {'a_command': 'result command a\n', 'b_command': 'result command b\n'}
+        d.close()
