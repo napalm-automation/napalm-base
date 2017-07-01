@@ -86,3 +86,21 @@ class TestMockDriver():
         assert "get_route_to got an unexpected keyword argument 'proto'" in excinfo.value
 
         d.close()
+
+    def test_mock_error(self):
+        d = driver("blah", "bleh", "blih", optional_args=optional_args)
+        d.open()
+
+        with pytest.raises(KeyError) as excinfo:
+            d.get_bgp_neighbors()
+        assert "Something" in excinfo.value
+
+        with pytest.raises(napalm_base.exceptions.ConnectionClosedException) as excinfo:
+            d.get_bgp_neighbors()
+        assert "Something" in excinfo.value
+
+        with pytest.raises(TypeError) as excinfo:
+            d.get_bgp_neighbors()
+            assert "Couldn't resolve exception NoIdeaException" in excinfo.value
+
+        d.close()

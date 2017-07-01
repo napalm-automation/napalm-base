@@ -24,6 +24,17 @@ import json
 import os
 
 
+from pydoc import locate
+
+
+def raise_exception(result):
+    exc = locate(result["exception"])
+    if exc:
+        raise exc(*result.get("args", []), **result.get("kwargs", {}))
+    else:
+        raise TypeError("Couldn't resolve exception {}", result["exception"])
+
+
 def is_mocked_method(method):
     mocked_methods = ["cli", ]
     if method.startswith("get_") or method in mocked_methods:
@@ -52,9 +63,14 @@ def mocked_method(path, name, count):
         filename = "{}.{}".format(os.path.join(path, name), count)
         try:
             with open(filename) as f:
-                return json.loads(f.read())
+                result = json.loads(f.read())
         except IOError:
             raise NotImplementedError("You can provide mocked data in {}".format(filename))
+
+        if "exception" in result:
+            raise_exception(result)
+        else:
+            return result
 
     return _mocked_method
 
