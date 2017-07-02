@@ -60,20 +60,38 @@ def mocked_method(path, name, count):
         if unexpected:
             raise TypeError("{} got an unexpected keyword argument '{}'".format(name,
                                                                                 unexpected[0]))
-
-        filename = "{}.{}".format(os.path.join(path, name), count)
-        try:
-            with open(filename) as f:
-                result = json.loads(f.read())
-        except IOError:
-            raise NotImplementedError("You can provide mocked data in {}".format(filename))
-
-        if "exception" in result:
-            raise_exception(result)
-        else:
-            return result
+        return mocked_data(path, name, count)
 
     return _mocked_method
+
+
+def mocked_data(path, name, count):
+    filename = "{}.{}".format(os.path.join(path, name), count)
+    try:
+        with open(filename) as f:
+            result = json.loads(f.read())
+    except IOError:
+        raise NotImplementedError("You can provide mocked data in {}".format(filename))
+
+    if "exception" in result:
+        raise_exception(result)
+    else:
+        return result
+
+
+
+class MockDevice:
+
+    def __init__(self, parent, profile):
+        self.parent = parent
+        self.profile = profile
+
+    def run_commands(self, commands):
+        """Only useful for EOS"""
+        if "eos" in self.profile:
+            return self.parent.cli(commands).values()[0]
+        else:
+            raise AttributeError("MockedDriver instance has not attribute '_rpc'")
 
 
 class MockDriver(NetworkDriver):
@@ -92,11 +110,21 @@ class MockDriver(NetworkDriver):
 
         self.opened = False
         self.calls = {}
+        self.device = MockDevice(self, self.profile)
+
+        # None no action, True load_merge, False load_replace
+        self.merge = None
+        self.filename = None
+        self.config = None
 
     def _count_calls(self, name):
         current_count = self.calls.get(name, 0)
         self.calls[name] = current_count + 1
         return self.calls[name]
+
+    def _raise_if_closed(self):
+        if not self.opened:
+            raise napalm_base.exceptions.ConnectionClosedException("connection closed")
 
     def open(self):
         self.opened = True
@@ -119,6 +147,43 @@ class MockDriver(NetworkDriver):
                 result[c] = f.read()
         return result
 
+    def load_merge_candidate(self, filename=None, config=None):
+        count = self._count_calls("load_merge_candidate")
+        self._raise_if_closed()
+        self.merge = True
+        self.filename = filename
+        self.config = config
+        mocked_data(self.path, "load_merge_candidate", count)
+
+    def load_replace_candidate(self, filename=None, config=None):
+        count = self._count_calls("load_replace_candidate")
+        self._raise_if_closed()
+        self.merge = False
+        self.filename = filename
+        self.config = config
+        mocked_data(self.path, "load_replace_candidate", count)
+
+    def compare_config(self, filename=None, config=None):
+        count = self._count_calls("compare_config")
+        self._raise_if_closed()
+        return mocked_data(self.path, "compare_config", count)["diff"]
+
+    def commit_config(self):
+        count = self._count_calls("commit_config")
+        self._raise_if_closed()
+        self.merge = None
+        self.filename = None
+        self.config = None
+        mocked_data(self.path, "commit_config", count)
+
+    def discard_config(self):
+        count = self._count_calls("commit_config")
+        self._raise_if_closed()
+        self.merge = None
+        self.filename = None
+        self.config = None
+        mocked_data(self.path, "discard_config", count)
+
     def _rpc(self, get):
         """This one is only useful for junos."""
         if "junos" in self.profile:
@@ -128,8 +193,7 @@ class MockDriver(NetworkDriver):
 
     def __getattribute__(self, name):
         if is_mocked_method(name):
-            if not self.opened:
-                raise napalm_base.exceptions.ConnectionClosedException("connection closed")
+            self._raise_if_closed()
             count = self._count_calls(name)
             return mocked_method(self.path, name, count)
         else:
