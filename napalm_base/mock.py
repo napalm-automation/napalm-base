@@ -79,8 +79,7 @@ def mocked_data(path, name, count):
         return result
 
 
-
-class MockDevice:
+class MockDevice(object):
 
     def __init__(self, parent, profile):
         self.parent = parent

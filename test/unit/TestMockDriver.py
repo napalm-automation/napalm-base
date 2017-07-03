@@ -26,7 +26,7 @@ optional_args = {
 }
 
 
-class TestMockDriver():
+class TestMockDriver(object):
     """Test Mock Driver."""
 
     def test_basic(self):
@@ -110,4 +110,22 @@ class TestMockDriver():
         d.open()
         result = d.cli(["a_command", "b_command"])
         assert result == {'a_command': 'result command a\n', 'b_command': 'result command b\n'}
+        d.close()
+
+    def test_configuration_merge(self):
+        d = driver("blah", "bleh", "blih", optional_args=optional_args)
+        d.open()
+        d.load_merge_candidate(config="asdasdasd")
+        assert d.merge is True
+        d.compare_config() == "a_diff"
+        d.commit_config()
+        d.close()
+
+    def test_configuration_replace(self):
+        d = driver("blah", "bleh", "blih", optional_args=optional_args)
+        d.open()
+        d.load_replace_candidate(config="asdasdasd")
+        assert d.merge is False
+        d.compare_config() == "a_diff"
+        d.commit_config()
         d.close()
