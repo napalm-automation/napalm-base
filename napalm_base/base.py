@@ -808,28 +808,34 @@ class NetworkDriver(object):
                             'primary_ip': True
                         },
                         u'10.66.50.1': {
-                            'prefix_length': 24
+                            'prefix_length': 24,
+                            'primary_ip': False
                         }
                     }
                 },
                 u'Loopback555': {
                     u'ipv4': {
                         u'192.168.1.1': {
-                            'prefix_length': 24
+                            'prefix_length': 24,
+                            'primary_ip': True
                         }
                     },
                     u'ipv6': {
                         u'1::1': {
-                            'prefix_length': 64
+                            'prefix_length': 64,
+                            'primary_ip': False
                         },
                         u'2001:DB8:1::1': {
-                            'prefix_length': 64
+                            'prefix_length': 64,
+                            'primary_ip': True
                         },
                         u'2::': {
-                            'prefix_length': 64
+                            'prefix_length': 64,
+                            'primary_ip': False
                         },
                         u'FE80::3': {
-                            'prefix_length': u'N/A'
+                            'prefix_length': u'N/A',
+                            'primary_ip': False
                         }
                     }
                 },
