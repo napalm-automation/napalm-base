@@ -1,6 +1,7 @@
 from napalm_base import get_network_driver
 from napalm_base import indent_differ
 
+from glob import glob
 import pytest
 
 import os
@@ -11,12 +12,8 @@ BASE_PATH = os.path.dirname(__file__)
 
 driver = get_network_driver("mock")
 
-test_cases_differ = [
-    "test_case_1",
-    "test_case_2",
-    "test_case_3",
-    "test_snmp_server",
-]
+
+test_cases_differ = [x.split('/')[-1] for x in glob('{}/test_indent_differ/*'.format(BASE_PATH))]
 
 
 class Test_Indent_differ(object):
