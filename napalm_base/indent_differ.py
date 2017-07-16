@@ -69,6 +69,8 @@ def _can_have_multiple(command):
         "ip address",
         "ipv6 address",
         "snmp-server enable traps",
+        "ipv6 access-list",
+        "standby",
     ]
     return any([command.startswith(e) for e in EXACT_MATCHES])
 
