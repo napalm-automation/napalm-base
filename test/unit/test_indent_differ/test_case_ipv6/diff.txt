@@ -1,21 +1,21 @@
 - ipv6 access-list CISCO
 -   deny tcp any any gt 5000
--   permit ipv6 any any
 -   permit icmp any any
-+  ipv6 access-list CISCO
+-   permit ipv6 any any
++ ipv6 access-list CISCO
 +   deny tcp any any gt 5000
 +   deny udp ::/0 lt 5000 ::/0 log
-+   permit ipv6 any any
 +   permit icmp any any
-  interface GigabitEthernet0/2
--   ipv6 traffic-filter CISCO out
-+   ipv6 traffic-filter eigrp out
--   shutdown
++   permit ipv6 any any
   interface GigabitEthernet0/0
 +   ipv6 nd nud retry 1 1000 4
 -   ipv6 nd nud retry 1 1000 3
   interface GigabitEthernet0/1
 -   standby 2 preempt
 +   ipv6 address 2001:DB8:CAFE:ABBA:BEEF::3/64
+  interface GigabitEthernet0/2
+-   shutdown
++   ipv6 traffic-filter eigrp out
+-   ipv6 traffic-filter CISCO out
 - ipv6 route 2001:DB8::/48 GigabitEthernet0/2 FE80::3
 + ipv6 route 2001:DB8::/48 GigabitEthernet0/4 FE80::5
