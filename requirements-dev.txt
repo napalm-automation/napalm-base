@@ -1,10 +1,10 @@
+coveralls
 pytest
 pytest-cov
 pytest-json
 pytest-pythonpath
 pylama
 flake8-import-order
-nose
 ddt
 lxml
 napalm-eos
