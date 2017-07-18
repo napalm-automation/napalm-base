@@ -39,7 +39,7 @@ class TestMockDriver(object):
 
         with pytest.raises(napalm_base.exceptions.ConnectionClosedException) as excinfo:
             d.get_facts()
-        assert "connection closed" in excinfo.value
+        assert "connection closed" in str(excinfo.value)
 
     def test_context_manager(self):
         with driver("blah", "bleh", "blih", optional_args=optional_args) as d:
@@ -60,12 +60,12 @@ class TestMockDriver(object):
         with pytest.raises(NotImplementedError) as excinfo:
             d.get_route_to()
         expected = "You can provide mocked data in {}/get_route_to.1".format(optional_args["path"])
-        assert expected in excinfo.value
+        assert expected in str(excinfo.value)
 
         with pytest.raises(NotImplementedError) as excinfo:
             d.get_route_to()
         expected = "You can provide mocked data in {}/get_route_to.2".format(optional_args["path"])
-        assert expected in excinfo.value
+        assert expected in str(excinfo.value)
 
         d.close()
 
@@ -75,15 +75,15 @@ class TestMockDriver(object):
 
         with pytest.raises(TypeError) as excinfo:
             d.get_route_to(1, 2, 3)
-        assert "get_route_to: expected at most 3 arguments, got 4" in excinfo.value
+        assert "get_route_to: expected at most 3 arguments, got 4" in str(excinfo.value)
 
         with pytest.raises(TypeError) as excinfo:
             d.get_route_to(1, 1, protocol=2)
-        assert "get_route_to: expected at most 3 arguments, got 3" in excinfo.value
+        assert "get_route_to: expected at most 3 arguments, got 3" in str(excinfo.value)
 
         with pytest.raises(TypeError) as excinfo:
             d.get_route_to(proto=2)
-        assert "get_route_to got an unexpected keyword argument 'proto'" in excinfo.value
+        assert "get_route_to got an unexpected keyword argument 'proto'" in str(excinfo.value)
 
         d.close()
 
@@ -93,15 +93,15 @@ class TestMockDriver(object):
 
         with pytest.raises(KeyError) as excinfo:
             d.get_bgp_neighbors()
-        assert "Something" in excinfo.value
+        assert "Something" in str(excinfo.value)
 
         with pytest.raises(napalm_base.exceptions.ConnectionClosedException) as excinfo:
             d.get_bgp_neighbors()
-        assert "Something" in excinfo.value
+        assert "Something" in str(excinfo.value)
 
         with pytest.raises(TypeError) as excinfo:
             d.get_bgp_neighbors()
-            assert "Couldn't resolve exception NoIdeaException" in excinfo.value
+            assert "Couldn't resolve exception NoIdeaException" in str(excinfo.value)
 
         d.close()
 
