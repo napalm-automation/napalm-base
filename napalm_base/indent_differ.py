@@ -69,6 +69,8 @@ def _can_have_multiple(command):
         "ip address",
         "ipv6 address",
         "snmp-server enable traps",
+        "ipv6 access-list",
+        "standby",
     ]
     return any([command.startswith(e) for e in EXACT_MATCHES])
 
@@ -98,6 +100,7 @@ def merge(running, candidate, negators, indent=0):
             for r in remove:
                 result.append(("remove", "{}{}".format(" " * indent * 2, r)))
                 result += _expand(running[r], "remove", indent+1)
+                running.pop(r)
         elif command in running:
             r = merge(running[command], subcommands, negators, indent+1)
             if r:
@@ -137,6 +140,9 @@ class IndentedConfig(object):
 
     def values(self):
         return self.parsed.values()
+
+    def pop(self, key):
+        self.parsed.pop(key)
 
     def __setitem__(self, item, value):
         self.parsed.__setitem__(item, value)

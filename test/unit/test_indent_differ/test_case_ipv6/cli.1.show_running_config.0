@@ -1,0 +1,136 @@
+!
+version 15.6
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+vrf definition mgmt
+ !
+ address-family ipv4
+ exit-address-family
+!
+!
+no aaa new-model
+ethernet lmi ce
+!
+no ip domain lookup
+ip domain name lab.local
+ip cef
+ipv6 icmp error-interval 3000 100
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+username test privilege 15 password 0 test
+!
+redundancy
+!
+!
+!
+interface GigabitEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:DB8:BEEF::1/64
+ ipv6 nd cache expire 7200
+ ipv6 nd nud retry 1 1000 3
+ ipv6 nd ra suppress
+!
+interface GigabitEthernet0/1
+ no ip address
+ standby version 2
+ standby 2 ipv6 2001:DB8:0:789:1::1/64
+ standby 2 priority 150
+ standby 2 preempt
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:0:789:1::3/64
+ ipv6 nd reachable-time 2700000
+ ipv6 nd na glean
+ ipv6 nd cache expire 7200
+ no ipv6 redirects
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 traffic-filter CISCO in
+ ipv6 traffic-filter CISCO out
+!
+interface GigabitEthernet0/3
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/4
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ vrf forwarding mgmt
+ ip address 192.168.99.11 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route vrf mgmt 0.0.0.0 0.0.0.0 192.168.99.1
+!
+ipv6 route 2001:DB8::/48 GigabitEthernet0/3 FE80::4
+ipv6 route 2001:DB8::/48 GigabitEthernet0/2 FE80::3
+!
+!
+!
+ipv6 access-list CISCO
+ deny tcp any any gt 5000
+ permit icmp any any
+ permit ipv6 any any
+!
+ipv6 access-list eigrp
+ permit ipv6 any host FF02::A
+ deny ipv6 any any log
+!
+ipv6 access-list test1
+ deny ipv6 FE80::/64 any
+ permit ipv6 FE80::/64 any log
+!
+control-plane
+!
+line con 0
+line aux 0
+line vty 0 4
+ ipv6 access-class IPv6ACL in
+ login local
+ transport input ssh
+line vty 5 14
+ ipv6 access-class IPv6ACL in
+ login local
+ transport input ssh
+!
+no scheduler allocate
+!
+end
