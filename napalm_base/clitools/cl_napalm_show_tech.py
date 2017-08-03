@@ -100,7 +100,7 @@ def test_getter(device, getter, **kwargs):
     func = getattr(device, getter)
     logger.debug("{} - Attempting to call getter with kwargs: {}".format(getter, kwargs))
     r = func(**kwargs)
-    logger.debug("{} - Response")
+    logger.debug("{} - Response".format(getter))
     pprint.pprint(r)
 
 
