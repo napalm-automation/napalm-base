@@ -134,7 +134,7 @@ class NetworkDriver(object):
         """
         This is a helper function used by the cli tool cl_napalm_show_tech. Drivers
         can override this method to do some tests, show information, enable debugging, etc.
-        before a connection with the device has been closed successfully.
+        after a connection with the device has been closed successfully.
         """
         raise NotImplementedError
 
