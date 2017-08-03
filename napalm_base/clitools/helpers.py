@@ -16,7 +16,7 @@ import getpass
 import argparse
 
 
-def build_help(connect_test=False, validate=False, configure=False):
+def build_help(connect_test=False, validate=False, configure=False, show_tech=False):
     parser = argparse.ArgumentParser(
         description='Command line tool to handle configuration on devices using NAPALM.'
                     'The script will print the diff on the screen',
@@ -87,6 +87,19 @@ def build_help(connect_test=False, validate=False, configure=False):
             dest='validation_file',
             action='store',
             help='Validation file containing resources derised states'
+        )
+    elif show_tech:
+        parser.add_argument(
+            '--getter', '-g',
+            dest='getter',
+            action='store',
+            help='Attempt to run this getter'
+        )
+        parser.add_argument(
+            '--getter-kwargs', '-k',
+            dest='getter_kwargs',
+            action='store',
+            help='kwargs to pass to the getter. For example: "destination=1.1.1.1,protocol=bgp"'
         )
     args = parser.parse_args()
 
