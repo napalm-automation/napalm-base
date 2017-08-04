@@ -138,7 +138,7 @@ class NetworkDriver(object):
                                                          template_source=template_source,
                                                          template_path=template_path,
                                                          **template_vars)
-            except (napalm_base.exceptions.DriverTemplateNotImplmeented,
+            except (napalm_base.exceptions.DriverTemplateNotImplemented,
                     napalm_base.exceptions.TemplateNotImplememnted):
                 if cls is object:
                     raise
