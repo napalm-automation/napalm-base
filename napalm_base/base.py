@@ -133,7 +133,7 @@ class NetworkDriver(object):
         """
         for cls in self.__class__.mro():
             try:
-                return napalm_base.helpers.load_template(self,
+                return napalm_base.helpers.load_template(cls,
                                                          template_name,
                                                          template_source=template_source,
                                                          template_path=template_path,
