@@ -117,9 +117,9 @@ class NetworkDriver(object):
     def load_template(self, template_name, template_source=None,
                       template_path=None, **template_vars):
         """
-        Will load a templated configuration on the device.
+        Will load a templated configuration on the device. If path is not provided, will walk the
+        MRO and search.
 
-        :param cls: Instance of the driver class.
         :param template_name: Identifies the template name.
         :param template_source (optional): Custom config template rendered and loaded on device
         :param template_path (optional): Absolute path to directory for the configuration templates
@@ -131,11 +131,17 @@ class NetworkDriver(object):
         source does not have the right format, either the arguments in `template_vars` are not \
         properly specified.
         """
-        return napalm_base.helpers.load_template(self,
-                                                 template_name,
-                                                 template_source=template_source,
-                                                 template_path=template_path,
-                                                 **template_vars)
+        for cls in self.__class__.mro():
+            try:
+                return napalm_base.helpers.load_template(self,
+                                                         template_name,
+                                                         template_source=template_source,
+                                                         template_path=template_path,
+                                                         **template_vars)
+            except (napalm_base.exceptions.DriverTemplateNotImplmeented,
+                    napalm_base.exceptions.TemplateNotImplememnted):
+                if cls is object:
+                    raise
 
     def load_replace_candidate(self, filename=None, config=None):
         """
