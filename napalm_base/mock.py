@@ -19,13 +19,39 @@ from __future__ import unicode_literals
 from napalm_base.base import NetworkDriver
 import napalm_base.exceptions
 
+import ast
 import inspect
 import json
 import os
 import re
 
 
+from functools import wraps
 from pydoc import locate
+
+
+def count_calls(name=None, pass_self=True):
+    def real_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                funcname = name or func.__name__
+                self = args[0]
+                args = args if pass_self else args[1:]
+                try:
+                    self.current_count = self.calls[funcname]
+                except KeyError:
+                    self.calls[funcname] = 1
+                    self.current_count = 1
+                r = func(*args, **kwargs)
+                self.calls[funcname] += 1
+            except Exception:
+                if self.increase_count_on_error:
+                    self.calls[funcname] += 1
+                raise
+            return r
+        return wrapper
+    return real_decorator
 
 
 def raise_exception(result):
@@ -33,7 +59,7 @@ def raise_exception(result):
     if exc:
         raise exc(*result.get("args", []), **result.get("kwargs", {}))
     else:
-        raise TypeError("Couldn't resolve exception {}", result["exception"])
+        raise TypeError("Couldn't resolve exception {}".format(result["exception"]))
 
 
 def is_mocked_method(method):
@@ -43,7 +69,7 @@ def is_mocked_method(method):
     return False
 
 
-def mocked_method(path, name, count):
+def mocked_method(self, name):
     parent_method = getattr(NetworkDriver, name)
     parent_method_args = inspect.getargspec(parent_method)
     modifier = 0 if 'self' not in parent_method_args.args else 1
@@ -60,7 +86,8 @@ def mocked_method(path, name, count):
         if unexpected:
             raise TypeError("{} got an unexpected keyword argument '{}'".format(name,
                                                                                 unexpected[0]))
-        return mocked_data(path, name, count)
+        return count_calls(name, pass_self=False)(
+            mocked_data)(self, self.path, name, self.calls.get(name, 1))
 
     return _mocked_method
 
@@ -75,6 +102,10 @@ def mocked_data(path, name, count):
 
     if "exception" in result:
         raise_exception(result)
+    elif "plain_text" in result:
+        return result["plain_text"]
+    elif "direct_value" in result:
+        return ast.literal_eval(result["direct_value"])
     else:
         return result
 
@@ -116,10 +147,7 @@ class MockDriver(NetworkDriver):
         self.filename = None
         self.config = None
 
-    def _count_calls(self, name):
-        current_count = self.calls.get(name, 0)
-        self.calls[name] = current_count + 1
-        return self.calls[name]
+        self.increase_count_on_error = optional_args.get("increase_count_on_error", True)
 
     def _raise_if_closed(self):
         if not self.opened:
@@ -134,54 +162,54 @@ class MockDriver(NetworkDriver):
     def is_alive(self):
         return {"is_alive": self.opened}
 
+    @count_calls()
     def cli(self, commands):
-        count = self._count_calls("cli")
         result = {}
         regexp = re.compile('[^a-zA-Z0-9]+')
         for i, c in enumerate(commands):
             sanitized = re.sub(regexp, '_', c)
-            name = "cli.{}.{}".format(count, sanitized)
+            name = "cli.{}.{}".format(self.current_count, sanitized)
             filename = "{}.{}".format(os.path.join(self.path, name), i)
             with open(filename, 'r') as f:
                 result[c] = f.read()
         return result
 
+    @count_calls()
     def load_merge_candidate(self, filename=None, config=None):
-        count = self._count_calls("load_merge_candidate")
         self._raise_if_closed()
         self.merge = True
         self.filename = filename
         self.config = config
-        mocked_data(self.path, "load_merge_candidate", count)
+        mocked_data(self.path, "load_merge_candidate", self.current_count)
 
+    @count_calls()
     def load_replace_candidate(self, filename=None, config=None):
-        count = self._count_calls("load_replace_candidate")
         self._raise_if_closed()
         self.merge = False
         self.filename = filename
         self.config = config
-        mocked_data(self.path, "load_replace_candidate", count)
+        mocked_data(self.path, "load_replace_candidate", self.current_count)
 
+    @count_calls()
     def compare_config(self, filename=None, config=None):
-        count = self._count_calls("compare_config")
         self._raise_if_closed()
-        return mocked_data(self.path, "compare_config", count)["diff"]
+        return mocked_data(self.path, "compare_config", self.current_count)["diff"]
 
+    @count_calls()
     def commit_config(self):
-        count = self._count_calls("commit_config")
         self._raise_if_closed()
         self.merge = None
         self.filename = None
         self.config = None
-        mocked_data(self.path, "commit_config", count)
+        mocked_data(self.path, "commit_config", self.current_count)
 
+    @count_calls()
     def discard_config(self):
-        count = self._count_calls("commit_config")
         self._raise_if_closed()
         self.merge = None
         self.filename = None
         self.config = None
-        mocked_data(self.path, "discard_config", count)
+        mocked_data(self.path, "discard_config", self.current_count)
 
     def _rpc(self, get):
         """This one is only useful for junos."""
@@ -193,7 +221,6 @@ class MockDriver(NetworkDriver):
     def __getattribute__(self, name):
         if is_mocked_method(name):
             self._raise_if_closed()
-            count = self._count_calls(name)
-            return mocked_method(self.path, name, count)
+            return mocked_method(self, name)
         else:
             return object.__getattribute__(self, name)

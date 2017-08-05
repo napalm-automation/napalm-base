@@ -13,6 +13,7 @@ import napalm_base.exceptions
 
 import pytest
 
+import copy
 import os
 
 
@@ -101,7 +102,7 @@ class TestMockDriver(object):
 
         with pytest.raises(TypeError) as excinfo:
             d.get_bgp_neighbors()
-            assert "Couldn't resolve exception NoIdeaException" in excinfo.value
+        assert "Couldn't resolve exception NoIdeaException" in str(excinfo.value)
 
         d.close()
 
@@ -128,4 +129,34 @@ class TestMockDriver(object):
         assert d.merge is False
         d.compare_config() == "a_diff"
         d.commit_config()
+        d.close()
+
+    def test_count_on_error(self):
+        optargs = copy.deepcopy(optional_args)
+        optargs["increase_count_on_error"] = True
+        d = driver("blah", "bleh", "blih", optional_args=optargs)
+        d.open()
+        try:
+            d.get_ntp_peers()
+        except Exception:
+            pass
+
+        with pytest.raises(NotImplementedError) as excinfo:
+            d.get_ntp_peers()
+        assert "get_ntp_peers.2" in str(excinfo.value)
+        d.close()
+
+    def test_dont_count_on_error(self):
+        optargs = copy.deepcopy(optional_args)
+        optargs["increase_count_on_error"] = False
+        d = driver("blah", "bleh", "blih", optional_args=optargs)
+        d.open()
+        try:
+            d.get_ntp_peers()
+        except Exception:
+            pass
+
+        with pytest.raises(NotImplementedError) as excinfo:
+            d.get_ntp_peers()
+        assert "get_ntp_peers.1" in str(excinfo.value)
         d.close()
