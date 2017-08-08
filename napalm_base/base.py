@@ -47,11 +47,7 @@ class NetworkDriver(object):
         raise NotImplementedError
 
     def __enter__(self):
-        try:
-            self.open()
-        except Exception:  # noqa
-            exc_info = sys.exc_info()
-            return self.__raise_clean_exception(exc_info[0], exc_info[1], exc_info[2])
+        self.open()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
