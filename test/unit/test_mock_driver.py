@@ -25,6 +25,11 @@ optional_args = {
     "path": os.path.join(BASE_PATH, "test_mock_driver"),
     "profile": ["eos"],
 }
+fail_args = {
+    "path": os.path.join(BASE_PATH, "test_mock_driver"),
+    "profile": ["eos"],
+    "fail_on_open": True,
+}
 
 
 class TestMockDriver(object):
@@ -43,6 +48,10 @@ class TestMockDriver(object):
         assert "connection closed" in py23_compat.text_type(excinfo.value)
 
     def test_context_manager(self):
+        with pytest.raises(napalm_base.exceptions.ConnectionException) as e, \
+                driver("blah", "bleh", "blih", optional_args=fail_args) as d:
+            pass
+        assert "You told me to do this" in py23_compat.text_type(e.value)
         with pytest.raises(AttributeError) as e, \
                 driver("blah", "bleh", "blih", optional_args=optional_args) as d:
             assert d.is_alive() == {u'is_alive': True}
