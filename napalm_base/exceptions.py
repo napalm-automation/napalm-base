@@ -115,3 +115,7 @@ class TemplateRenderException(Exception):
 
 class ValidationException(Exception):
     pass
+
+
+class UncaughtException(Exception):
+    pass
