@@ -43,9 +43,12 @@ class TestMockDriver(object):
         assert "connection closed" in py23_compat.text_type(excinfo.value)
 
     def test_context_manager(self):
-        with driver("blah", "bleh", "blih", optional_args=optional_args) as d:
+        with pytest.raises(AttributeError) as e, \
+                driver("blah", "bleh", "blih", optional_args=optional_args) as d:
             assert d.is_alive() == {u'is_alive': True}
+            d.__fake_call()
         assert d.is_alive() == {u'is_alive': False}
+        assert "object has no attribute" in py23_compat.text_type(e.value)
 
     def test_mocking_getters(self):
         d = driver("blah", "bleh", "blih", optional_args=optional_args)
