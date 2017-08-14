@@ -115,13 +115,13 @@ def build_help(connect_test=False, validate=False, configure=False, show_tech=Fa
             '--method', '-m',
             dest='getter',
             action='store',
-            help='Attempt to run this getter'
+            help='Run this method'
         )
         parser.add_argument(
             '--getter-kwargs', '-k',
             dest='getter_kwargs',
             action='store',
-            help='kwargs to pass to the getter. For example: "destination=1.1.1.1,protocol=bgp"'
+            help='kwargs to pass to the method. For example: "destination=1.1.1.1,protocol=bgp"'
         )
     args = parser.parse_args()
 
