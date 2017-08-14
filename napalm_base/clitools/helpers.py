@@ -60,6 +60,7 @@ def build_help(connect_test=False, validate=False, configure=False, show_tech=Fa
         action='store_true',
         help='Enables debug mode; more verbosity.'
     )
+
     if configure:
         parser.add_argument(
             '--strategy', '-s',
@@ -90,7 +91,28 @@ def build_help(connect_test=False, validate=False, configure=False, show_tech=Fa
         )
     elif show_tech:
         parser.add_argument(
-            '--getter', '-g',
+            '--strategy', '-s',
+            dest='strategy',
+            action='store',
+            choices=['replace', 'merge'],
+            default='replace',
+            help='Strategy to use to deploy configuration. Default: replace.'
+        )
+        parser.add_argument(
+            '--file', '-f',
+            dest='config_file',
+            action='store',
+            help='File containing the configuration you want to deploy.'
+        )
+        parser.add_argument(
+            '--dry-run', '-d',
+            dest='dry_run',
+            action='store_true',
+            default=None,
+            help='Only returns diff, it does not deploy the configuration.',
+        )
+        parser.add_argument(
+            '--method', '-m',
             dest='getter',
             action='store',
             help='Attempt to run this getter'
