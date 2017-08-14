@@ -25,7 +25,10 @@ def debugging(name):
     def real_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-                logger.debug("{} - Calling with args: {}, {}".format(name, args, kwargs))
+                censor_parameters = ["password"]
+                censored_kwargs = {k: v if k not in censor_parameters else "*******"
+                                   for k, v in kwargs.items()}
+                logger.debug("{} - Calling with args: {}, {}".format(name, args, censored_kwargs))
                 try:
                     r = func(*args, **kwargs)
                     logger.error("{} - Successful".format(name))
@@ -107,8 +110,9 @@ def test_getter(device, getter, **kwargs):
 def run_tests(args):
     driver = test_get_network_driver(args.vendor)
     optional_args = helpers.parse_optional_args(args.optional_args)
-    device = test_instantiating_object(driver, args.hostname, args.user, args.password, 60,
-                                       optional_args=optional_args)
+
+    device = test_instantiating_object(driver, args.hostname, args.user, password=args.password,
+                                       timeout=60, optional_args=optional_args)
 
     test_pre_connection(device)
     test_open_device(device)
