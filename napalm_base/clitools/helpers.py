@@ -121,5 +121,6 @@ def configure_logging(logger, debug):
 
 def parse_optional_args(optional_args):
     if optional_args is not None:
-        return {x.split('=')[0]: ast.literal_eval(x.split('=')[1]) for x in optional_args.split(',')}
+        return {x.split('=')[0]: ast.literal_eval(x.split('=')[1])
+                for x in optional_args.split(',')}
     return {}
