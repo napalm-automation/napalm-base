@@ -14,9 +14,16 @@ import sys
 import logging
 import getpass
 import argparse
+import warnings
 
 
-def build_help(connect_test=False, validate=False, configure=False, show_tech=False):
+def warning():
+    warnings.simplefilter('always', DeprecationWarning)
+    warnings.warn("This tool has been deprecated, please use `napalm` instead\n",
+                  DeprecationWarning)
+
+
+def build_help(connect_test=False, validate=False, configure=False, napalm_cli=False):
     parser = argparse.ArgumentParser(
         description='Command line tool to handle configuration on devices using NAPALM.'
                     'The script will print the diff on the screen',
@@ -89,7 +96,7 @@ def build_help(connect_test=False, validate=False, configure=False, show_tech=Fa
             action='store',
             help='Validation file containing resources derised states'
         )
-    elif show_tech:
+    elif napalm_cli:
         parser.add_argument(
             '--strategy', '-s',
             dest='strategy',
@@ -122,6 +129,12 @@ def build_help(connect_test=False, validate=False, configure=False, show_tech=Fa
             dest='getter_kwargs',
             action='store',
             help='kwargs to pass to the method. For example: "destination=1.1.1.1,protocol=bgp"'
+        )
+        parser.add_argument(
+            '--validation_file', '-f',
+            dest='validation_file',
+            action='store',
+            help='Validation file containing resources derised states'
         )
     args = parser.parse_args()
 
