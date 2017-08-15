@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-'''
-NAPALM CLI Tools: show tech
-===========================
-
-Gathering useful information for debugging purposes
-'''
-
 # Python3 support
 from __future__ import print_function
 from __future__ import unicode_literals
