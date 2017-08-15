@@ -179,6 +179,7 @@ def call_post_connection(device):
 def call_facts(device):
     facts = device.get_facts()
     logger.debug("Gathered facts:\n{}".format(json.dumps(facts, indent=4)))
+    print(json.dumps(facts, indent=4))
 
 
 @debugging("close")
