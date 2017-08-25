@@ -514,3 +514,25 @@ class BaseTestGetters(object):
             for policy_term in policy_details:
                 assert helpers.test_model(models.firewall_policies, policy_term)
         return get_firewall_policies
+
+    @wrap_test_cases
+    def test_get_static_rp_config(self, test_case):
+        """Test get_static_rp_config method."""
+        get_static_rp_config = self.device.get_static_rp_config()
+        assert isinstance(get_static_rp_config, dict)
+        if len(get_static_rp_config) > 0:
+            for vrf, rp_list in get_static_rp_config.items():
+                assert isinstance(vrf, text_type)
+                for rp in rp_list:
+                    assert isinstance(rp['acl'], text_type) if rp['acl'] is not None else True
+                    assert rp['bsr_override'] is True if rp['bsr_override'] is not None else True
+                    assert isinstance(rp['hashmask'],
+                                      int) if rp['hashmask'] is not None else True
+                    assert isinstance(rp['mcast_subnet'],
+                                      text_type) if rp['mcast_subnet'] is not None else True
+                    assert isinstance(rp['priority'],
+                                      int) if rp['priority'] is not None else True
+                    assert isinstance(rp['rp_addr'],
+                                      text_type) if rp['rp_addr'] is not None else True
+
+        return get_static_rp_config
