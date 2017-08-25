@@ -1547,3 +1547,26 @@ class NetworkDriver(object):
         report file. See https://napalm.readthedocs.io/en/latest/validate/index.html.
         """
         return validate.compliance_report(self, validation_file=validation_file)
+
+    def get_eigrp_neighbors(self):
+        """
+        Returns a dictionary of dictionaries. The keys for the first dictionary will be the vrf
+        (global if no vrf). The inner dictionary will contain the following data for each vrf:
+
+          * router_id
+          * peers - another dictionary of dictionaries. Outer keys are the IPs of the neighbors. \
+           The inner keys are:
+            * Interface (string)
+            * Holdtime (int in seconds)
+            * Uptime (int in seconds)
+            * Q Count (int)
+            * Seq Num (int)
+            * SRTT (int in milliseconds)
+            * RTO (int in milliseconds)
+            * Version (string)
+            * Retransmits (int)
+            * Retries (int)
+            * Restart Time (int in seconds)
+
+        """
+        raise NotImplementedError
