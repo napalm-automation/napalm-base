@@ -1547,3 +1547,58 @@ class NetworkDriver(object):
         report file. See https://napalm.readthedocs.io/en/latest/validate/index.html.
         """
         return validate.compliance_report(self, validation_file=validation_file)
+
+    def get_isis_adjacencies(self):
+        """
+        Returns a dictionary with ISIS instances.
+        The keys of the main dictionary represent the name of the ISIS instance.
+        Each ISIS instance consists of the ISIS adjacencies.
+
+        * system-id (string)
+
+        The adjacency dictionary contains the following ISIS attributes as keys:
+
+        * interface_name (string)
+        * circuit_type (string)
+        * network_type (string)
+        * neighbor_state (string)
+        * ietf_nsf_flag (int)
+
+        Example::
+
+        {
+           'instance1':{
+              '0168.0000.0001':{
+                 'ietf_nsf_flag': True,
+                 'circuit_type':'ISIS_LEVELS_2',
+                 'interface_name':'GigabitEthernet0/0/0/1',
+                 'network_type':'ISIS_MEDIA_CLASS_P2P',
+                 'neighbor_state':'ISIS_ADJ_UP_STATE'
+              },
+              '0168.0000.0002':{
+                 'ietf_nsf_flag': True,
+                 'circuit_type':'ISIS_LEVELS_2',
+                 'interface_name':'GigabitEthernet0/0/0/2',
+                 'network_type':'ISIS_MEDIA_CLASS_P2P',
+                 'neighbor_state':'ISIS_ADJ_UP_STATE'
+              }
+           },
+           'instance2':{
+              '0168.0000.0003':{
+                 'ietf_nsf_flag': False,
+                 'circuit_type':'ISIS_LEVELS_2',
+                 'interface_name':'GigabitEthernet0/0/0/3',
+                 'network_type':'ISIS_MEDIA_CLASS_P2P',
+                 'neighbor_state':'ISIS_ADJ_UP_STATE'
+              },
+              '0168.0000.0004':{
+                 'ietf_nsf_flag': False,
+                 'circuit_type':'ISIS_LEVELS_2',
+                 'interface_name':'GigabitEthernet0/0/0/4',
+                 'network_type':'ISIS_MEDIA_CLASS_P2P',
+                 'neighbor_state':'ISIS_ADJ_UP_STATE'
+              }
+           }
+        }
+        """
+        raise NotImplementedError
