@@ -1538,11 +1538,16 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
-    def compliance_report(self, validation_file='validate.yml'):
+    def compliance_report(self, validation_file=None, validation_source=None):
         """
         Return a compliance report.
 
         Verify that the device complies with the given validation file and writes a compliance
         report file. See https://napalm.readthedocs.io/en/latest/validate.html.
+
+        :param validation_file: Path to the file containing compliance definition. By default is None.
+        :param validation_source: Dictionary containing compliance rules.
+        :raise ValidationException: File is not valid.
+        :raise NotImplementedError: Method not implemented.
         """
-        return validate.compliance_report(self, validation_file=validation_file)
+        return validate.compliance_report(self, validation_file=validation_file, validation_source=validation_source)
