@@ -1562,7 +1562,7 @@ class NetworkDriver(object):
         * circuit_type (string)
         * network_type (string)
         * neighbor_state (string)
-        * ietf_nsf_flag (int)
+        * ietf_nsf_flag (bool)
 
         Example::
 
