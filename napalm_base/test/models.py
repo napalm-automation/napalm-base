@@ -333,3 +333,11 @@ firewall_policies = {
     'dst_zone': text_type,
     'action': text_type
 }
+
+isis_adjacency_attributes = {
+    'interface_name': text_type,
+    'circuit_type': text_type,
+    'ietf_nsf_flag': bool,
+    'network_type': text_type,
+    'neighbor_state': text_type
+}

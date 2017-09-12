@@ -514,3 +514,14 @@ class BaseTestGetters(object):
             for policy_term in policy_details:
                 assert helpers.test_model(models.firewall_policies, policy_term)
         return get_firewall_policies
+
+    @wrap_test_cases
+    def test_get_isis_adjacencies(self, test_case):
+        """Test get_isis_adjacencies method."""
+        get_isis_adjacencies = self.device.get_isis_adjacencies()
+        assert len(get_isis_adjacencies) > 0
+        for instance_name, instance in get_isis_adjacencies.items():
+            for neighbor, isis_adjacency_attributes in instance.items():
+                assert helpers.test_model(models.isis_adjacency_attributes,
+                                          isis_adjacency_attributes)
+        return get_isis_adjacencies

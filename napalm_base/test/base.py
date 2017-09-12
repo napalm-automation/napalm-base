@@ -579,3 +579,30 @@ class TestGettersNetworkDriver(object):
                 self._test_model(models.network_instance_interfaces, network_instance['interfaces'])
 
         self.assertTrue(result)
+
+    def test_get_isis_adjacencies(self):
+        """Test get_isis_adjacency."""
+        try:
+            get_isis_adjacencies = self.device.get_isis_adjacencies()
+        except NotImplementedError:
+            raise SkipTest()
+
+        result = isinstance(get_isis_adjacencies, dict)
+        for instance_name, instance in get_isis_adjacencies.items():
+            result = result and isinstance(instance_name, dict)
+            for neighbor, isis_adjacency_attributes in instance.items():
+                result = result and \
+                    self._test_model(models.isis_adjacency_attributes,
+                                     isis_adjacency_attributes)
+
+        self.assertTrue(result)
+
+    def test_get_isis_hostnames(self):
+        """Test get_isis_hostnames."""
+        try:
+            get_isis_hostnames = self.device.get_isis_hostnames()
+        except NotImplementedError:
+            raise SkipTest()
+
+        result = isinstance(get_isis_hostnames, dict)
+        self.assertTrue(result)
