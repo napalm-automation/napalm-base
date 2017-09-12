@@ -596,3 +596,13 @@ class TestGettersNetworkDriver(object):
                                      isis_adjacency_attributes)
 
         self.assertTrue(result)
+
+    def test_get_isis_hostnames(self):
+        """Test get_isis_hostnames."""
+        try:
+            get_isis_hostnames = self.device.get_isis_hostnames()
+        except NotImplementedError:
+            raise SkipTest()
+
+        result = isinstance(get_isis_hostnames, dict)
+        self.assertTrue(result)

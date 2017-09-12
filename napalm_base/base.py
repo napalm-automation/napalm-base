@@ -1602,3 +1602,21 @@ class NetworkDriver(object):
         }
         """
         raise NotImplementedError
+
+    def get_isis_hostnames(self):
+        """
+        Returns a dictionary with keys as ISIS system-id and values as hostname.
+
+        * system-id (string): hostname (string)
+
+        Example::
+
+        {
+            "0168.0000.0001": "er12-xrv1",
+            "0168.0000.0003": "er12-xrv3",
+            "0168.0000.1000": "pr2-xrv6",
+            "0168.0000.0004": "pr2-xrv4",
+            "0168.0000.0006": "pr2-xrv6"
+        }
+        """
+        raise NotImplementedError
