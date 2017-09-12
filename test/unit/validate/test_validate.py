@@ -133,6 +133,7 @@ class TestValidate:
 
         assert expected_report == actual_report, yaml.safe_dump(actual_report)
 
+
 class FakeDriver(NetworkDriver):
     """This is a fake NetworkDriver."""
 
