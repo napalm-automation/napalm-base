@@ -10,7 +10,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # stdlib
-import ast
 import sys
 import logging
 import getpass
