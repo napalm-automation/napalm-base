@@ -1563,42 +1563,60 @@ class NetworkDriver(object):
         * network_type (string)
         * neighbor_state (string)
         * ietf_nsf_flag (bool)
+        * neighbor_area (string)
+        * neighbor_uptime (string)
+        * topologies_supported (list)
 
         Example::
-
         {
-           'instance1':{
-              '0168.0000.0001':{
-                 'ietf_nsf_flag': True,
-                 'circuit_type':'ISIS_LEVELS_2',
-                 'interface_name':'GigabitEthernet0/0/0/1',
-                 'network_type':'ISIS_MEDIA_CLASS_P2P',
-                 'neighbor_state':'ISIS_ADJ_UP_STATE'
-              },
-              '0168.0000.0002':{
-                 'ietf_nsf_flag': True,
-                 'circuit_type':'ISIS_LEVELS_2',
-                 'interface_name':'GigabitEthernet0/0/0/2',
-                 'network_type':'ISIS_MEDIA_CLASS_P2P',
-                 'neighbor_state':'ISIS_ADJ_UP_STATE'
-              }
-           },
-           'instance2':{
-              '0168.0000.0003':{
-                 'ietf_nsf_flag': False,
-                 'circuit_type':'ISIS_LEVELS_2',
-                 'interface_name':'GigabitEthernet0/0/0/3',
-                 'network_type':'ISIS_MEDIA_CLASS_P2P',
-                 'neighbor_state':'ISIS_ADJ_UP_STATE'
-              },
-              '0168.0000.0004':{
-                 'ietf_nsf_flag': False,
-                 'circuit_type':'ISIS_LEVELS_2',
-                 'interface_name':'GigabitEthernet0/0/0/4',
-                 'network_type':'ISIS_MEDIA_CLASS_P2P',
-                 'neighbor_state':'ISIS_ADJ_UP_STATE'
-              }
-           }
+            "1":
+                {
+                "xrv1":
+                    {
+                    "neighbor_area": "49.01fff",
+                    "ietf_nsf_flag": true,
+                    "neighbor_uptime": "5719776",
+                    "circuit_type": "ISIS_LEVELS_2",
+                    "interface_name": "GigabitEthernet0/0/0/4",
+                    "topologies_supported": [
+                        "IPv4 Unicast"
+                    ],
+                    "network_type": "ISIS_MEDIA_CLASS_P2P",
+                    "neighbor_state": "ISIS_ADJ_UP_STATE"
+                    },
+
+                    "xrv2":
+                    {
+                    "neighbor_area": "49.01fff",
+                    "ietf_nsf_flag": true,
+                    "neighbor_uptime": "1974735",
+                    "circuit_type": "ISIS_LEVELS_2",
+                    "interface_name": "GigabitEthernet0/0/0/2",
+                    "topologies_supported": [
+                        "IPv4 Unicast"
+                    ],
+                    "network_type": "ISIS_MEDIA_CLASS_P2P",
+                    "neighbor_state": "ISIS_ADJ_UP_STATE"
+                    }
+                },
+
+            "2":
+                {
+                "xrv3":
+                    {
+                    "neighbor_area": "49.01fff",
+                    "ietf_nsf_flag": true,
+                    "neighbor_uptime": "1973383",
+                    "circuit_type": "ISIS_LEVELS_12",
+                    "interface_name": "GigabitEthernet0/0/0/1",
+                    "topologies_supported": [
+                        "IPv4 Unicast",
+                        "IPv6 Unicast"
+                    ],
+                    "network_type": "ISIS_MEDIA_CLASS_P2P",
+                    "neighbor_state": "ISIS_ADJ_UP_STATE"
+                    }
+                }
         }
         """
         raise NotImplementedError

@@ -339,5 +339,8 @@ isis_adjacency_attributes = {
     'circuit_type': text_type,
     'ietf_nsf_flag': bool,
     'network_type': text_type,
-    'neighbor_state': text_type
+    'neighbor_state': text_type,
+    'neighbor_area': text_type,
+    'neighbor_uptime': text_type,
+    'topologies_supported': list
 }
