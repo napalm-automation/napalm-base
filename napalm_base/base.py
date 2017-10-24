@@ -20,6 +20,12 @@ from __future__ import unicode_literals
 import napalm_base.exceptions
 import napalm_base.helpers
 
+
+try:
+    import napalm_yang
+except ImportError:
+    napalm_yang = None
+
 import napalm_base.constants as c
 
 from napalm_base import validate
@@ -68,6 +74,15 @@ class NetworkDriver(object):
                 self.close()
         except Exception:
             pass
+
+    @property
+    def yang(self):
+        if not napalm_yang:
+            raise ImportError("No module named napalm_yang. Please install `napalm-yang`")
+
+        if not hasattr(self, "_yang"):
+            self._yang = napalm_base.yang.Yang(self)
+        return self._yang
 
     def open(self):
         """
