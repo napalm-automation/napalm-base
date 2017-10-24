@@ -1,0 +1,158 @@
+- interfaces:
+    Ethernet1:
+      autoNegotiate: unknown
+      bandwidth: 0
+      burnedInAddress: 08:00:27:31:5b:5e
+      description: ''
+      duplex: duplexFull
+      forwardingModel: bridged
+      hardware: ethernet
+      interfaceAddress: []
+      interfaceCounters:
+        counterRefreshTime: 1502967440.707486
+        inBroadcastPkts: 0
+        inDiscards: 0
+        inMulticastPkts: 0
+        inOctets: 0
+        inUcastPkts: 0
+        inputErrorsDetail:
+          alignmentErrors: 0
+          fcsErrors: 0
+          giantFrames: 0
+          runtFrames: 0
+          rxPause: 0
+          symbolErrors: 0
+        linkStatusChanges: 1
+        outBroadcastPkts: 0
+        outDiscards: 0
+        outMulticastPkts: 32270
+        outOctets: 4080170
+        outUcastPkts: 0
+        outputErrorsDetail:
+          collisions: 0
+          deferredTransmissions: 0
+          lateCollisions: 0
+          txPause: 0
+        totalInErrors: 0
+        totalOutErrors: 0
+      interfaceStatistics:
+        inBitsRate: 0.0
+        inPktsRate: 0.0
+        outBitsRate: 0.0
+        outPktsRate: 0.0
+        updateInterval: 300.0
+      interfaceStatus: connected
+      lastStatusChangeTimestamp: 1502905876.9322298
+      lineProtocolStatus: up
+      loopbackMode: loopbackNone
+      mtu: 9214
+      name: Ethernet1
+      physicalAddress: 08:00:27:31:5b:5e
+    Ethernet2:
+      autoNegotiate: unknown
+      bandwidth: 0
+      burnedInAddress: 08:00:27:35:cc:32
+      description: ''
+      duplex: duplexFull
+      forwardingModel: bridged
+      hardware: ethernet
+      interfaceAddress: []
+      interfaceCounters:
+        counterRefreshTime: 1502967440.704994
+        inBroadcastPkts: 0
+        inDiscards: 0
+        inMulticastPkts: 0
+        inOctets: 0
+        inUcastPkts: 0
+        inputErrorsDetail:
+          alignmentErrors: 0
+          fcsErrors: 0
+          giantFrames: 0
+          runtFrames: 0
+          rxPause: 0
+          symbolErrors: 0
+        lastClear: 1502905826.213603
+        linkStatusChanges: 1
+        outBroadcastPkts: 0
+        outDiscards: 0
+        outMulticastPkts: 32270
+        outOctets: 4080170
+        outUcastPkts: 0
+        outputErrorsDetail:
+          collisions: 0
+          deferredTransmissions: 0
+          lateCollisions: 0
+          txPause: 0
+        totalInErrors: 0
+        totalOutErrors: 0
+      interfaceStatistics:
+        inBitsRate: 0.0
+        inPktsRate: 0.0
+        outBitsRate: 0.0
+        outPktsRate: 0.0
+        updateInterval: 300.0
+      interfaceStatus: connected
+      lastStatusChangeTimestamp: 1502905876.9323828
+      lineProtocolStatus: up
+      loopbackMode: loopbackNone
+      mtu: 9214
+      name: Ethernet2
+      physicalAddress: 08:00:27:35:cc:32
+    Management1:
+      autoNegotiate: success
+      bandwidth: 1000000000
+      burnedInAddress: 08:00:27:7d:44:c1
+      description: ''
+      duplex: duplexFull
+      forwardingModel: routed
+      hardware: ethernet
+      interfaceAddress:
+      - broadcastAddress: 255.255.255.255
+        primaryIp:
+          address: 10.0.2.15
+          maskLen: 24
+        secondaryIps: {}
+        secondaryIpsOrderedList: []
+        virtualIp:
+          address: 0.0.0.0
+          maskLen: 0
+      interfaceCounters:
+        counterRefreshTime: 1502967440.702346
+        inBroadcastPkts: 4
+        inDiscards: 0
+        inMulticastPkts: 0
+        inOctets: 644221
+        inUcastPkts: 0
+        inputErrorsDetail:
+          alignmentErrors: 0
+          fcsErrors: 0
+          giantFrames: 0
+          runtFrames: 0
+          rxPause: 0
+          symbolErrors: 0
+        linkStatusChanges: 5
+        outBroadcastPkts: 0
+        outDiscards: 0
+        outMulticastPkts: 0
+        outOctets: 1485127
+        outUcastPkts: 4893
+        outputErrorsDetail:
+          collisions: 0
+          deferredTransmissions: 0
+          lateCollisions: 0
+          txPause: 0
+        totalInErrors: 0
+        totalOutErrors: 0
+      interfaceStatistics:
+        inBitsRate: 226.85441155883467
+        inPktsRate: 1.011684899724945e-91
+        outBitsRate: 450.912565364304
+        outPktsRate: 0.13201541432747763
+        updateInterval: 300.0
+      interfaceStatus: connected
+      lastStatusChangeTimestamp: 1502905890.7846065
+      lineProtocolStatus: up
+      loopbackMode: loopbackNone
+      mtu: 1500
+      name: Management1
+      physicalAddress: 08:00:27:7d:44:c1

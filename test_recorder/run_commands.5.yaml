@@ -1,0 +1,26 @@
+!pyeapiCommandError;1
+? !!binary |
+  Y29kZQ==
+: 1002
+? !!binary |
+  a3dhcmdz
+: ? !!binary |
+    Y29tbWFuZF9lcnJvcg==
+  : 'Invalid input (at token 0: ''wrong'')'
+  ? !!binary |
+    Y29tbWFuZHM=
+  : - !!binary |
+      ZW5hYmxl
+    - !!binary |
+      d3JvbmcgY29tbWFuZA==
+  ? !!binary |
+    b3V0cHV0
+  : - output: ''
+    - errors:
+      - 'Invalid input (at token 0: ''wrong'')'
+      output: '% Invalid input (at token 0: ''wrong'')
+
+        '
+? !!binary |
+  bWVzc2FnZQ==
+: 'CLI command 2 of 2 ''wrong command'' failed: invalid command'
