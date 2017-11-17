@@ -10,7 +10,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # stdlib
-import ast
 import sys
 import logging
 import getpass
@@ -121,6 +120,6 @@ def configure_logging(logger, debug):
 
 def parse_optional_args(optional_args):
     if optional_args is not None:
-        return {x.split('=')[0]: ast.literal_eval(x.split('=')[1])
+        return {x.split('=')[0]: x.split('=')[1]
                 for x in optional_args.split(',')}
     return {}
