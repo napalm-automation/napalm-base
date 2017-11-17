@@ -1,0 +1,6 @@
+ip access-list extended TEST-ACL
+ permit tcp any any eq www
+ permit tcp any any eq 443
+ permit tcp any any eq 22
+ permit udp any any eq snmp
+ deny   ip any any

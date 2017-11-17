@@ -1,0 +1,14 @@
+- vlan 4
+-   name network-management
++ vlan 111
++   name network-management
+- interface Vlan4
+-   description *** Management VLAN ***
+-   ip address 172.16.1.224 255.255.255.0
+-   no ip route-cache
+-   ipv6 address 2001:DB8:BEEF::224/64
++ interface Vlan111
++   description *** Management VLAN ***
++   ip address 172.16.1.224 255.255.255.0
++   no ip route-cache
++   ipv6 address 2001:DB8:BEEF::224/64

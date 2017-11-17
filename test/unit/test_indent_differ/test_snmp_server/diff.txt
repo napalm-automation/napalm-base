@@ -1,0 +1,8 @@
++ snmp-server location DEMO_ENV
+- snmp-server location VAGRANT
++ snmp-server contact NAPALM-NOC_DEMO
+- snmp-server contact NAPALM-NOC
++ snmp-server community napalm RO
++ snmp-server community public RO 10
+- snmp-server community public RO
++ snmp-server enable traps entity-sensor

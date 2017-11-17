@@ -1,0 +1,17 @@
+enable password whatever
+default logging
+
+no interface Loopback0
+
+interface GigabitEthernet1
+  description "bleh"
+  switchport mode trunk
+  switchport trunk vlan 1,2,3,5
+
+interface GigabitEthernet2
+  no ip address
+
+no interface GigabitEthernet666
+
+router bgp 65000
+  no neighbor 1.1.1.1

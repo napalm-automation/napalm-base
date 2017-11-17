@@ -1,0 +1,95 @@
+!
+version 15.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname sw02
+!
+boot-start-marker
+boot-end-marker
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 4
+ name network-management
+!
+vlan 100
+ name access
+!
+vlan 101
+ name voip
+!
+!
+!
+!
+interface Port-channel1
+ description Link to sw01
+ switchport mode trunk
+!
+interface GigabitEthernet0/1
+ description Notebook 01
+ switchport access vlan 100
+ switchport mode access
+ no logging event link-status
+ spanning-tree portfast
+!
+interface GigabitEthernet0/2
+ description IP-Phone 01
+ switchport access vlan 101
+ switchport mode access
+ no logging event link-status
+ spanning-tree portfast
+!
+interface GigabitEthernet0/3
+ no logging event link-status
+ shutdown
+!
+interface GigabitEthernet0/4
+ no logging event link-status
+ shutdown
+!
+interface GigabitEthernet0/5
+ no logging event link-status
+ shutdown
+!
+interface GigabitEthernet0/6
+ no logging event link-status
+ shutdown
+!
+interface GigabitEthernet0/7
+ no logging event link-status
+ shutdown
+!
+interface GigabitEthernet0/8
+ no logging event link-status
+ shutdown
+!
+interface GigabitEthernet0/9
+ description Link to sw02
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/10
+ description Link to sw02
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface Vlan1
+ no ip address
+ no ip route-cache
+ shutdown
+!
+interface Vlan4
+ description *** Management VLAN ***
+ ip address 172.16.1.224 255.255.255.0
+ no ip route-cache
+ ipv6 address 2001:DB8:BEEF::224/64
+!
+!
+line con 0
+line vty 0 4
+!
+end
