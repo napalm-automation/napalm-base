@@ -11,6 +11,7 @@ except ImportError:
     from itertools import zip_longest
 
 import inspect
+from inspect import ArgSpec
 import json
 
 import pytest
@@ -122,6 +123,21 @@ class BaseTestGetters(object):
 
     def test_method_signatures(self):
         """Test that all methods have the same signature."""
+
+        # Method signatures that are migrating from old to new state (temporary state)
+        # napalm-base must match new; napalm-driver must match old (if not identical to base)
+        TRANSITION_SIGNATURES = {
+            'commit_config': {
+                'old': ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None),
+                'new': ArgSpec(args=['self', 'confirmed'], varargs=None,
+                               keywords=None, defaults=(0,)),
+            },
+            'commit_confirm': {
+                'old': 'Method does not exist in napalm_base',
+                'new': ArgSpec(args=['self'], varargs=None, keywords=None, defaults=None),
+            },
+        }
+
         errors = {}
         cls = self.driver
         # Create fictional driver instance (py3 needs bound methods)
@@ -137,6 +153,11 @@ class BaseTestGetters(object):
             except AttributeError:
                 orig_spec = 'Method does not exist in napalm_base'
             func_spec = inspect.getargspec(func)
+            if attr in TRANSITION_SIGNATURES.keys():
+                old_spec = TRANSITION_SIGNATURES[attr]['old']
+                new_spec = TRANSITION_SIGNATURES[attr]['new']
+                if orig_spec == new_spec and func_spec == old_spec:
+                    continue
             if orig_spec != func_spec:
                 errors[attr] = (orig_spec, func_spec)
 
