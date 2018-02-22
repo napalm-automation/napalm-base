@@ -377,6 +377,36 @@ class BaseTestGetters(object):
         return get_route_to
 
     @wrap_test_cases
+    def test_get_route_to_static_v4(self, test_case):
+        """Test get_route_to with static ipv4 route"""
+        destination = '1.0.4.0/24'
+        protocol = 'static'
+        get_route_to = self.device.get_route_to(destination=destination, protocol=protocol)
+
+        assert len(get_route_to) > 0
+
+        for prefix, routes in get_route_to.items():
+            for route in routes:
+                assert helpers.test_model(models.route, route)
+
+        return get_route_to
+
+    @wrap_test_cases
+    def test_get_route_to_static_v6(self, test_case):
+        """Test get_route_to with static ipv6 route"""
+        destination = 'dead:beef:210:210::53/64'
+        protocol = 'static'
+        get_route_to = self.device.get_route_to(destination=destination, protocol=protocol)
+
+        assert len(get_route_to) > 0
+
+        for prefix, routes in get_route_to.items():
+            for route in routes:
+                assert helpers.test_model(models.route, route)
+
+        return get_route_to
+
+    @wrap_test_cases
     def test_get_snmp_information(self, test_case):
         """Test get_snmp_information."""
         get_snmp_information = self.device.get_snmp_information()
