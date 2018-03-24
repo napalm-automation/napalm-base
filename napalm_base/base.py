@@ -842,6 +842,7 @@ class NetworkDriver(object):
         addresses as keys.
         Each IP Address dictionary has the following keys:
             * prefix_length (int)
+            * primary_ip (boolean)
 
         Example::
 
@@ -849,35 +850,46 @@ class NetworkDriver(object):
                 u'FastEthernet8': {
                     u'ipv4': {
                         u'10.66.43.169': {
-                            'prefix_length': 22
+                            'prefix_length': 22,
+                            'primary_ip': True
+                        },
+                        u'10.66.50.1': {
+                            'prefix_length': 24,
+                            'primary_ip': False
                         }
                     }
                 },
                 u'Loopback555': {
                     u'ipv4': {
                         u'192.168.1.1': {
-                            'prefix_length': 24
+                            'prefix_length': 24,
+                            'primary_ip': True
                         }
                     },
                     u'ipv6': {
                         u'1::1': {
-                            'prefix_length': 64
+                            'prefix_length': 64,
+                            'primary_ip': False
                         },
                         u'2001:DB8:1::1': {
-                            'prefix_length': 64
+                            'prefix_length': 64,
+                            'primary_ip': True
                         },
                         u'2::': {
-                            'prefix_length': 64
+                            'prefix_length': 64,
+                            'primary_ip': False
                         },
                         u'FE80::3': {
-                            'prefix_length': u'N/A'
+                            'prefix_length': u'N/A',
+                            'primary_ip': False
                         }
                     }
                 },
                 u'Tunnel0': {
                     u'ipv4': {
                         u'10.63.100.9': {
-                            'prefix_length': 24
+                            'prefix_length': 24,
+                            'primary_ip': True
                         }
                     }
                 }
