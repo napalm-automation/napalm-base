@@ -1,6 +1,7 @@
 # Python3 support
 from __future__ import print_function
 from __future__ import unicode_literals
+from pip._internal.utils.misc import get_installed_distributions
 
 # import helpers
 from napalm_base import get_network_driver
@@ -143,7 +144,7 @@ def build_help():
 
 def check_installed_packages():
     logger.debug("Gathering napalm packages")
-    installed_packages = pip.get_installed_distributions()
+    installed_packages = pip._internal.utils.misc.get_installed_distributions()
     napalm_packages = sorted(["{}=={}".format(i.key, i.version)
                               for i in installed_packages if i.key.startswith("napalm")])
     for n in napalm_packages:
